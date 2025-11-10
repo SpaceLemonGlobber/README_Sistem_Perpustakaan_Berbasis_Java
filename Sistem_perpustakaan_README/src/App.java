@@ -1,6 +1,6 @@
-import java.util.Scanner;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 
 public class App {
@@ -100,6 +100,7 @@ public class App {
                     System.out.print("Stok: ");
                     int stok = sc.nextInt();
                     a.tambahBuku(a.getDaftarBuku().size() + 1, judul, penerbit, tahun, stok);
+                    break;
                 }
                 case 3 : {
                     System.out.print("ID Buku: ");
@@ -107,11 +108,13 @@ public class App {
                     System.out.print("Judul baru: ");
                     String baru = sc.nextLine();
                     a.ubahBuku(id, baru);
+                    break;
                 }
                 case 4 : {
                     System.out.print("ID Buku: ");
                     int id = sc.nextInt();
                     a.hapusBuku(id);
+                    break;
                 }
                 case 5 : {
                     a.logout();
