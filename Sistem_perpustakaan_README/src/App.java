@@ -89,7 +89,9 @@ public class App {
             int p = sc.nextInt(); sc.nextLine();
 
             switch (p) {
-                case 1 : a.lihatBuku();
+                case 1 : 
+                    a.lihatBuku();
+                    break;
                 case 2 : {
                     System.out.print("Judul: ");
                     String judul = sc.nextLine();
@@ -120,7 +122,9 @@ public class App {
                     a.logout();
                     return;
                 }
-                default : System.out.println("Pilihan tidak valid!");
+                default : 
+                    System.out.println("Pilihan tidak valid!");
+                    break;
             }
         }
     }
@@ -137,7 +141,9 @@ public class App {
             int p = sc.nextInt(); sc.nextLine();
 
             switch (p) {
-                case 1 : admin.lihatBuku();
+                case 1 : 
+                    admin.lihatBuku();
+                    break;
                 case 2 : {
                     admin.lihatBuku();
                     System.out.print("ID buku: ");
@@ -155,6 +161,7 @@ public class App {
                     } else {
                         System.out.println("Buku dengan ID tersebut tidak ditemukan.");
                     }
+                    break;
 
                 }
                 case 3 : {
@@ -162,13 +169,18 @@ public class App {
                     System.out.print("ID peminjaman: ");
                     int idP = sc.nextInt();
                     a.kembalikanBuku(idP);
+                    break;
                 }
-                case 4 : a.lihatRiwayat();
+                case 4 : 
+                    a.lihatRiwayat();
+                    break;
                 case 5 : {
                     a.logout();
                     return;
                 }
-                default : System.out.println("Pilihan tidak valid!");
+                default : 
+                    System.out.println("Pilihan tidak valid!");
+                    break;
             }
         }
     }
