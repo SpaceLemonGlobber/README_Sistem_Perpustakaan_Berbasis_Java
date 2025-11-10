@@ -19,13 +19,19 @@ public class App {
             int pilih = sc.nextInt(); sc.nextLine();
 
             switch (pilih) {
-                case 1 : login();
-                case 2 : register();
+                case 1 : 
+                    login();
+                    break;
+                case 2 : 
+                    register();
+                    break;
                 case 3 : {
                     System.out.println("Program selesai. Terima kasih!");
                     return;
                 }
-                default : System.out.println("Pilihan tidak valid!");
+                default : 
+                    System.out.println("Pilihan tidak valid!");
+                    break;
             }
         }
     }
