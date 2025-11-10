@@ -1,3 +1,8 @@
+import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
+
+
 public class App {
     private static Scanner sc = new Scanner(System.in);
     private static Admin admin = new Admin("Admin Utama");
@@ -134,10 +139,20 @@ public class App {
                     admin.lihatBuku();
                     System.out.print("ID buku: ");
                     int id = sc.nextInt();
-                    admin.getDaftarBuku().stream()
-                        .filter(b : b.getBukuId() == id)
-                        .findFirst()
-                        .ifPresent(a::pinjamBuku);
+                    Buku bukuDitemukan = null;
+                    for (Buku b : admin.getDaftarBuku()) {
+                        if (b.getBukuId() == id) {
+                        bukuDitemukan = b;
+                        break;
+                        }
+                    }
+
+                    if (bukuDitemukan != null) {
+                        a.pinjamBuku(bukuDitemukan);
+                    } else {
+                        System.out.println("Buku dengan ID tersebut tidak ditemukan.");
+                    }
+
                 }
                 case 3 : {
                     a.lihatRiwayat();
