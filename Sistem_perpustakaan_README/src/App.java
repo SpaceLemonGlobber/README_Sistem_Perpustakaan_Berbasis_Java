@@ -1,3 +1,6 @@
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -66,22 +69,33 @@ public class App {
         }
     }
 
-    private static void register() {
-        System.out.print("Nama: ");
-        String nama = sc.nextLine();
-        System.out.print("Email: ");
-        String email = sc.nextLine();
-        System.out.print("No Telp: ");
-        String no = sc.nextLine();
-        System.out.print("Username: ");
-        String user = sc.nextLine();
-        System.out.print("Password: ");
-        String pass = sc.nextLine();
+   private static void register() {
+    System.out.print("Nama: ");
+    String nama = sc.nextLine();
+    System.out.print("Email: ");
+    String email = sc.nextLine();
+    System.out.print("No Telp: ");
+    String no = sc.nextLine();
+    System.out.print("Username: ");
+    String user = sc.nextLine();
+    System.out.print("Password: ");
+    String pass = sc.nextLine();
 
-        Anggota baru = new Anggota(anggotaList.size() + 1, nama, email, no, user, pass);
-        anggotaList.add(baru);
+    try (Connection c = koneksi.getConnection()) {
+        String sql = "INSERT INTO anggota (nama, email, noTelp, username, password) VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1, nama);
+        ps.setString(2, email);
+        ps.setString(3, no);
+        ps.setString(4, user);
+        ps.setString(5, pass);
+        ps.executeUpdate();
         System.out.println("Registrasi berhasil! Silakan login.");
+    } catch (SQLException e) {
+        System.out.println("Gagal registrasi: " + e.getMessage());
     }
+}
+
 
     private static void menuAdmin(Admin a) {
         while (true) {
@@ -107,9 +121,11 @@ public class App {
                     int tahun = sc.nextInt();
                     System.out.print("Stok: ");
                     int stok = sc.nextInt();
-                    a.tambahBuku(a.getDaftarBuku().size() + 1, judul, penerbit, tahun, stok);
+
+                    a.tambahBuku(judul, penerbit, tahun, stok);
                     break;
                 }
+
                 case 3 : {
                     System.out.print("ID Buku: ");
                     int id = sc.nextInt(); sc.nextLine();

@@ -1,56 +1,152 @@
-import java.util.*;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Admin extends User {
-    private String namaAdmin;
-    private List<Buku> daftarBuku = new ArrayList<>();
+    private String nama;
 
-    public Admin(String namaAdmin) {
+    public Admin(String nama) {
         super(0, "admin", "#12345", "admin");
-        this.namaAdmin = namaAdmin;
+        this.nama = nama;
     }
 
     @Override
     public void menu() {
-        System.out.println("Selamat datang Admin: " + namaAdmin);
+        System.out.println("Halo, " + nama + ". Anda login sebagai Admin.");
+        System.out.println("==========================================");
+        System.out.println("1. Tambah Buku");
+        System.out.println("2. Ubah Buku");
+        System.out.println("3. Hapus Buku");
+        System.out.println("4. Lihat Daftar Buku");
+        System.out.println("5. Logout");
+        System.out.println("==========================================");
     }
 
-    // Overloading (dua versi tambahBuku)
-    public void tambahBuku(Buku b) {
-        daftarBuku.add(b);
-        System.out.println("Buku \"" + b.getJudul() + "\" berhasil ditambahkan.");
-    }
+    /** 
+     * Tambah buku baru ke database 
+     */
+    public void tambahBuku(String judul, String penerbit, int tahun, int stok) {
+        String sql = "INSERT INTO buku (judul, penerbit, tahunTerbit, stok) VALUES (?, ?, ?, ?)";
+        try (Connection c = koneksi.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
 
-    public void tambahBuku(int id, String judul, String penerbit, int tahun, int stok) {
-        daftarBuku.add(new Buku(id, judul, penerbit, tahun, stok));
-        System.out.println("Buku \"" + judul + "\" berhasil ditambahkan.");
-    }
-
-    public void ubahBuku(int id, String judulBaru) {
-        for (Buku b : daftarBuku) {
-            if (b.getBukuId() == id) {
-                b.setJudul(judulBaru);
-                System.out.println("Judul buku diperbarui menjadi " + judulBaru);
+            // Validasi input sederhana
+            if (judul.isEmpty() || penerbit.isEmpty()) {
+                System.out.println("Judul dan penerbit tidak boleh kosong!");
                 return;
             }
+
+            ps.setString(1, judul);
+            ps.setString(2, penerbit);
+            ps.setInt(3, tahun);
+            ps.setInt(4, stok);
+            ps.executeUpdate();
+            System.out.println("✅ Buku \"" + judul + "\" berhasil ditambahkan!");
+        } catch (SQLException e) {
+            System.out.println("❌ Gagal menambah buku: " + e.getMessage());
         }
-        System.out.println("Buku tidak ditemukan.");
     }
 
+    /** 
+     * Ubah data buku berdasarkan ID 
+     */
+    public void ubahBuku(int id, String judulBaru, String penerbitBaru, int tahunBaru, int stokBaru) {
+        String sql = "UPDATE buku SET judul = ?, penerbit = ?, tahunTerbit = ?, stok = ? WHERE bukuId = ?";
+        try (Connection c = koneksi.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, judulBaru);
+            ps.setString(2, penerbitBaru);
+            ps.setInt(3, tahunBaru);
+            ps.setInt(4, stokBaru);
+            ps.setInt(5, id);
+
+            int row = ps.executeUpdate();
+            if (row > 0) {
+                System.out.println("✅ Data buku berhasil diubah!");
+            } else {
+                System.out.println("⚠️ Buku dengan ID " + id + " tidak ditemukan.");
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Gagal mengubah buku: " + e.getMessage());
+        }
+    }
+
+    /** 
+     * Hapus buku berdasarkan ID 
+     */
     public void hapusBuku(int id) {
-        boolean removed = daftarBuku.removeIf(b -> b.getBukuId() == id);
-        System.out.println(removed ? "Buku berhasil dihapus." : "Buku tidak ditemukan.");
-    }
+        String sql = "DELETE FROM buku WHERE bukuId = ?";
+        try (Connection c = koneksi.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
 
-    public void lihatBuku() {
-        if (daftarBuku.isEmpty()) {
-            System.out.println("Belum ada buku di perpustakaan.");
-            return;
+            ps.setInt(1, id);
+            int row = ps.executeUpdate();
+
+            if (row > 0) {
+                System.out.println("🗑️ Buku berhasil dihapus!");
+            } else {
+                System.out.println("⚠️ Buku dengan ID " + id + " tidak ditemukan.");
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Gagal menghapus buku: " + e.getMessage());
         }
-        System.out.println("=== DAFTAR BUKU ===");
-        daftarBuku.forEach(System.out::println);
     }
 
+    /** 
+     * Menampilkan seluruh daftar buku 
+     */
+    public void lihatBuku() {
+        String sql = "SELECT * FROM buku ORDER BY bukuId ASC";
+        try (Connection c = koneksi.getConnection();
+             Statement s = c.createStatement();
+             ResultSet rs = s.executeQuery(sql)) {
+
+            System.out.println("\n=== DAFTAR BUKU ===");
+            boolean adaData = false;
+            while (rs.next()) {
+                adaData = true;
+                System.out.printf(
+                    "%d. %s | %s | Tahun: %d | Stok: %d%n",
+                    rs.getInt("bukuId"),
+                    rs.getString("judul"),
+                    rs.getString("penerbit"),
+                    rs.getInt("tahunTerbit"),
+                    rs.getInt("stok")
+                );
+            }
+
+            if (!adaData) {
+                System.out.println("Belum ada buku di database.");
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Gagal mengambil data buku: " + e.getMessage());
+        }
+    }
+
+    /** 
+     * Mengambil daftar buku sebagai List<Buku> 
+     */
     public List<Buku> getDaftarBuku() {
-        return daftarBuku;
+        List<Buku> list = new ArrayList<>();
+        String sql = "SELECT * FROM buku ORDER BY bukuId ASC";
+
+        try (Connection c = koneksi.getConnection();
+             Statement s = c.createStatement();
+             ResultSet rs = s.executeQuery(sql)) {
+
+            while (rs.next()) {
+                list.add(new Buku(
+                        rs.getInt("bukuId"),
+                        rs.getString("judul"),
+                        rs.getString("penerbit"),
+                        rs.getInt("tahunTerbit"),
+                        rs.getInt("stok")
+                ));
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Gagal mengambil daftar buku: " + e.getMessage());
+        }
+        return list;
     }
 }
