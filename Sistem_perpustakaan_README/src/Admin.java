@@ -77,7 +77,7 @@ public class Admin extends User {
             int row = ps.executeUpdate();
 
             if (row > 0) {
-                System.out.println("🗑️ Buku berhasil dihapus!");
+                System.out.println(" Buku berhasil dihapus!");
             } else {
                 System.out.println("Buku dengan ID " + id + " tidak ditemukan.");
             }
@@ -111,7 +111,7 @@ public class Admin extends User {
                 System.out.println("Belum ada buku di database.");
             }
         } catch (SQLException e) {
-            System.out.println("❌ Gagal mengambil data buku: " + e.getMessage());
+            System.out.println("Gagal mengambil data buku: " + e.getMessage());
         }
     }
 
@@ -134,7 +134,7 @@ public class Admin extends User {
                 ));
             }
         } catch (SQLException e) {
-            System.out.println("❌ Gagal mengambil daftar buku: " + e.getMessage());
+            System.out.println("Gagal mengambil daftar buku: " + e.getMessage());
         }
         return list;
     }

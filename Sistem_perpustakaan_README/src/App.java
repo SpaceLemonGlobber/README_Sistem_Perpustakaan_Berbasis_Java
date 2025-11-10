@@ -28,10 +28,10 @@ public class App {
                         System.out.println("Program selesai. Terima kasih!");
                         return;
                     }
-                    default -> System.out.println("⚠️ Pilihan tidak valid!");
+                    default -> System.out.println("Pilihan tidak valid!");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("⚠️ Input harus berupa angka!");
+                System.out.println("Input harus berupa angka!");
             }
         }
     }
@@ -57,12 +57,12 @@ public class App {
         }
 
         if (u != null) {
-            System.out.println("\n✅ Login berhasil sebagai " + u.getRole());
+            System.out.println("\nLogin berhasil sebagai " + u.getRole());
             u.menu();
             if (u instanceof Admin) menuAdmin((Admin) u);
             else menuAnggota((Anggota) u);
         } else {
-            System.out.println("❌ Login gagal! Username atau password salah.");
+            System.out.println("Login gagal! Username atau password salah.");
         }
     }
 
@@ -92,9 +92,9 @@ public class App {
             ps.executeUpdate();
 
             anggotaList.add(new Anggota(nama, email, no, user, pass));
-            System.out.println("✅ Registrasi berhasil! Silakan login.");
+            System.out.println("Registrasi berhasil! Silakan login.");
         } catch (SQLException e) {
-            System.out.println("❌ Gagal registrasi: " + e.getMessage());
+            System.out.println("Gagal registrasi: " + e.getMessage());
         }
     }
 
@@ -151,10 +151,10 @@ public class App {
                         return;
                     }
 
-                    default -> System.out.println("⚠️ Pilihan tidak valid!");
+                    default -> System.out.println("Pilihan tidak valid!");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("⚠️ Input harus berupa angka!");
+                System.out.println("Input harus berupa angka!");
             }
         }
     }
@@ -188,7 +188,7 @@ public class App {
                         if (bukuDitemukan != null) {
                             a.pinjamBuku(bukuDitemukan);
                         } else {
-                            System.out.println("⚠️ Buku dengan ID tersebut tidak ditemukan.");
+                            System.out.println("Buku dengan ID tersebut tidak ditemukan.");
                         }
                     }
 
@@ -206,10 +206,10 @@ public class App {
                         return;
                     }
 
-                    default -> System.out.println("⚠️ Pilihan tidak valid!");
+                    default -> System.out.println("Pilihan tidak valid!");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("⚠️ Input harus berupa angka!");
+                System.out.println("Input harus berupa angka!");
             }
         }
     }
