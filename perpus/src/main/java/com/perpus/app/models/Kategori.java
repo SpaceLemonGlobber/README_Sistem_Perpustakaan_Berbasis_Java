@@ -3,19 +3,19 @@ package com.perpus.app.models;
 public class Kategori {
 
     private int kategoriId;
-    private final String namaKategori;
+    private final String nama_kategori;
     private final String deskripsi;
 
     // Constructor SELECT
-    public Kategori(int kategoriId, String namaKategori, String deskripsi) {
+    public Kategori(int kategoriId, String nama_kategori, String deskripsi) {
         this.kategoriId = kategoriId;
-        this.namaKategori = namaKategori;
+        this.nama_kategori = nama_kategori;
         this.deskripsi = deskripsi;
     }
 
     // Constructor INSERT
-    public Kategori(String namaKategori, String deskripsi) {
-        this.namaKategori = namaKategori;
+    public Kategori(String nama_kategori, String deskripsi) {
+        this.nama_kategori = nama_kategori;
         this.deskripsi = deskripsi;
     }
 
@@ -23,8 +23,8 @@ public class Kategori {
         return kategoriId;
     }
 
-    public String getNamaKategori() {
-        return namaKategori;
+    public String getnama_kategori() {
+        return nama_kategori;
     }
 
     public String getDeskripsi() {
@@ -33,6 +33,6 @@ public class Kategori {
 
     @Override
     public String toString() {
-        return namaKategori;
+        return nama_kategori;
     }
 }

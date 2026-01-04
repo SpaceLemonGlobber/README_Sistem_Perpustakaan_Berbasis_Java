@@ -7,9 +7,9 @@ import java.sql.SQLException;
 public class Database {
 
     private static final String URL =
-            "jdbc:mysql://localhost:3306/readmeperpustakaan?useSSL=false&serverTimezone=UTC";
+            "jdbc:mysql://localhost:3307/db_pbo";
     private static final String USER = "root";
-    private static final String PASS = "root";
+    private static final String PASS = "pram4848";
 
     private static Connection connection;
 
@@ -18,9 +18,12 @@ public class Database {
     }
 
     public static Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(URL, USER, PASS);
+        try {
+            // Memuat driver MySQL
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            return DriverManager.getConnection(URL, USER, PASS);
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Driver tidak ditemukan: " + e.getMessage());
         }
-        return connection;
     }
 }

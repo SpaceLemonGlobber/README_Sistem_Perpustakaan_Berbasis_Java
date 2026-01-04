@@ -3,37 +3,28 @@ package com.perpus.app.models;
 public class DetailPeminjaman {
 
     private int detailId;
-    private final Peminjaman peminjaman;
+    private final Peminjaman peminjaman; // Gunakan p kecil untuk variabel
     private final Buku buku;
-    private final int jumlah;
+    private final int jumlah_pinjam; // Sudah sesuai dengan kolom DB: jumlah_pinjam
 
     // Constructor untuk INSERT
-    public DetailPeminjaman(Peminjaman peminjaman, Buku buku, int jumlah) {
+    public DetailPeminjaman(Peminjaman peminjaman, Buku buku, int jumlah_pinjam) {
         this.peminjaman = peminjaman;
         this.buku = buku;
-        this.jumlah = jumlah;
+        this.jumlah_pinjam = jumlah_pinjam;
     }
 
-    // Constructor untuk SELECT
-    public DetailPeminjaman(int detailId, Peminjaman peminjaman, Buku buku, int jumlah) {
+    // Constructor untuk SELECT (Sesuai kolom DB: detailId)
+    public DetailPeminjaman(int detailId, Peminjaman peminjaman, Buku buku, int jumlah_pinjam) {
         this.detailId = detailId;
         this.peminjaman = peminjaman;
         this.buku = buku;
-        this.jumlah = jumlah;
-    }
-
-    // Business logic
-    public void kurangiStokBuku() {
-        buku.updateStok(-jumlah);
-    }
-
-    public void kembalikanBuku() {
-        buku.updateStok(jumlah);
+        this.jumlah_pinjam = jumlah_pinjam;
     }
 
     // Getter
     public int getDetailId() { return detailId; }
     public Peminjaman getPeminjaman() { return peminjaman; }
     public Buku getBuku() { return buku; }
-    public int getJumlah() { return jumlah; }
+    public int getJumlah_pinjam() { return jumlah_pinjam; }
 }

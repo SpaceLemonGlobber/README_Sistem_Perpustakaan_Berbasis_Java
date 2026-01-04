@@ -12,48 +12,41 @@ import com.perpus.config.Database;
 
 public class UserDAO {
 
-    /* ===============================
-       LOGIN
-       =============================== */
     public User login(String username, String password) {
-        String sql =
-            "SELECT user_id, username, password, role " +
-            "FROM user " +
-            "WHERE username = ? AND password = ?";
+        // Gunakan userId sesuai image_0225ee.png
+        String sql = "SELECT userId, username, password, role FROM user WHERE username = ? AND password = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
             ps.setString(2, password);
-
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                int id = rs.getInt("user_id");
+                int id = rs.getInt("userId");
                 String role = rs.getString("role");
+                String pass = rs.getString("password");
+                // Karena di tabel user image_0225ee.png tidak ada kolom 'nama', 
+                // kita gunakan 'username' sebagai 'nama' untuk sementara.
+                String nama = rs.getString("username"); 
 
+                User u;
                 if ("ADMIN".equalsIgnoreCase(role)) {
-                    return new Admin(id, username);
+                    u = new Admin(id, username, pass, nama);
                 } else {
-                    return new Anggota(id, username);
+                    u = new Anggota(id, username, pass, nama);
                 }
+                return u;
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    /* ===============================
-       GET USER BY ID
-       =============================== */
     public User getById(int id) {
-        String sql =
-            "SELECT user_id, username, role " +
-            "FROM user " +
-            "WHERE user_id = ?";
+        String sql = "SELECT userId, username, password, role FROM user WHERE userId = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -64,14 +57,15 @@ public class UserDAO {
             if (rs.next()) {
                 String role = rs.getString("role");
                 String username = rs.getString("username");
+                String pass = rs.getString("password");
+                String nama = rs.getString("username");
 
                 if ("ADMIN".equalsIgnoreCase(role)) {
-                    return new Admin(id, username);
+                    return new Admin(id, username, pass, nama);
                 } else {
-                    return new Anggota(id, username);
+                    return new Anggota(id, username, pass, nama);
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

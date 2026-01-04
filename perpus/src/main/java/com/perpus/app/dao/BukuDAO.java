@@ -19,7 +19,7 @@ public class BukuDAO {
     public List<Buku> getAll() {
         List<Buku> list = new ArrayList<>();
         String sql =
-            "SELECT buku_id, judul, penerbit, tahun_terbit, stok " +
+            "SELECT bukuId, judul, penerbit, tahun_terbit, stok " +
             "FROM buku";
 
         try (Connection conn = Database.getConnection();
@@ -28,7 +28,8 @@ public class BukuDAO {
 
             while (rs.next()) {
                 Buku buku = new Buku(
-                    rs.getInt("buku_id"),
+                    rs.getInt("bukuId"),
+                    rs.getInt("kategoriID"), 
                     rs.getString("judul"),
                     rs.getString("penerbit"),
                     rs.getInt("tahun_terbit"),
@@ -48,9 +49,9 @@ public class BukuDAO {
        =============================== */
     public Buku getById(int id) {
         String sql =
-            "SELECT buku_id, judul, penerbit, tahun_terbit, stok " +
+            "SELECT bukuId, judul, penerbit, tahun_terbit, stok " +
             "FROM buku " +
-            "WHERE buku_id = ?";
+            "WHERE bukuId = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -60,7 +61,8 @@ public class BukuDAO {
 
             if (rs.next()) {
                 return new Buku(
-                    rs.getInt("buku_id"),
+                    rs.getInt("bukuId"),
+                    rs.getInt("kategoriID"), 
                     rs.getString("judul"),
                     rs.getString("penerbit"),
                     rs.getInt("tahun_terbit"),
@@ -104,7 +106,7 @@ public class BukuDAO {
     public boolean update(Buku buku) {
         String sql =
             "UPDATE buku SET judul = ?, penerbit = ?, tahun_terbit = ?, stok = ? " +
-            "WHERE buku_id = ?";
+            "WHERE bukuId = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -129,7 +131,7 @@ public class BukuDAO {
     public boolean updateStok(int bukuId, int perubahan) {
         String sql =
             "UPDATE buku SET stok = stok + ? " +
-            "WHERE buku_id = ?";
+            "WHERE bukuId = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -145,8 +147,24 @@ public class BukuDAO {
         return false;
     }
 
+    public boolean kurangiStok(int bukuId, int jumlah) {
+    String sql = "UPDATE buku SET stok = stok - ? WHERE bukuId = ? AND stok >= ?";
+    try (Connection conn = Database.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        
+        ps.setInt(1, jumlah);
+        ps.setInt(2, bukuId);
+        ps.setInt(3, jumlah); // Pastikan stok cukup
+
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
     public boolean delete(int bukuId) {
-    String sql = "DELETE FROM buku WHERE buku_id = ?";
+    String sql = "DELETE FROM buku WHERE bukuId = ?";
     try (Connection conn = Database.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
         

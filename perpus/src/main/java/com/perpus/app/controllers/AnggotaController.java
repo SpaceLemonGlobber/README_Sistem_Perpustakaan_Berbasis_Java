@@ -1,11 +1,13 @@
 package com.perpus.app.controllers;
+
+import java.time.LocalDate;
+import java.util.List;
+
 import com.perpus.app.dao.BukuDAO;
 import com.perpus.app.dao.PeminjamanDAO;
 import com.perpus.app.models.Anggota;
 import com.perpus.app.models.Buku;
 import com.perpus.app.models.Peminjaman;
-
-import java.util.List;
 
 public class AnggotaController {
 
@@ -32,15 +34,20 @@ public class AnggotaController {
     public boolean pinjamBuku(int bukuId) {
         Buku buku = bukuDAO.getById(bukuId);
 
+        // Validasi stok menggunakan getter
         if (buku == null || buku.getStok() <= 0) {
             return false;
         }
 
-        Peminjaman p = new Peminjaman(anggotaLogin, buku);
+        // PERBAIKAN: Gunakan ID (int), bukan objek
+        Peminjaman p = new Peminjaman(anggotaLogin.getUserId(), bukuId);
+        p.setTanggalPinjam(LocalDate.now());
+        p.setStatus("DIPINJAM");
 
         boolean sukses = peminjamanDAO.insert(p);
         if (sukses) {
-            bukuDAO.updateStok(bukuId, -1);
+            // Update stok buku di database
+            bukuDAO.updateStok(-1, bukuId);
         }
         return sukses;
     }
@@ -49,11 +56,18 @@ public class AnggotaController {
        KEMBALIKAN BUKU
        =============================== */
     public boolean kembalikanBuku(int peminjamanId) {
-        boolean updated = peminjamanDAO.updateStatus(peminjamanId, "selesai");
+        // Ambil data peminjaman terlebih dahulu
+        Peminjaman p = peminjamanDAO.getById(peminjamanId);
+        
+        if (p == null || !"DIPINJAM".equalsIgnoreCase(p.getStatus())) {
+            return false;
+        }
+
+        boolean updated = peminjamanDAO.updateStatus(peminjamanId, "DIKEMBALIKAN");
 
         if (updated) {
-            Peminjaman p = peminjamanDAO.getById(peminjamanId);
-            bukuDAO.updateStok(p.getBuku().getBukuId(), +1);
+            // PERBAIKAN: Langsung p.getBukuId() karena tipenya sudah int
+            bukuDAO.updateStok(1, p.getBukuId());
         }
         return updated;
     }
@@ -65,4 +79,3 @@ public class AnggotaController {
         return peminjamanDAO.getByAnggota(anggotaLogin.getUserId());
     }
 }
-

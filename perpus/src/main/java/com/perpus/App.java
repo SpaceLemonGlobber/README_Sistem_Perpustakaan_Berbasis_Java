@@ -1,12 +1,12 @@
 package com.perpus;
 
+import java.io.IOException;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.io.IOException;
 
 /**
  * JavaFX App
@@ -32,6 +32,19 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
+        // Tambahkan tes koneksi sebelum launch()
+    try {
+        System.out.println("Mencoba menghubungkan ke database...");
+        java.sql.Connection conn = com.perpus.config.Database.getConnection();
+        if (conn != null) {
+            System.out.println("Koneksi Database BERHASIL! (Port 3307)");
+            conn.close(); // Tutup setelah tes berhasil
+        }
+    } catch (Exception e) {
+        System.err.println("Koneksi Database GAGAL!");
+        System.err.println("Pesan Error: " + e.getMessage());
+        // Kamu bisa memilih untuk lanjut launch() atau stop di sini
+    }
         launch();
     }
 
