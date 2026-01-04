@@ -1,6 +1,15 @@
-import java.sql.*;
+package com.perpus.app.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.perpus.app.models.Buku;
+import com.perpus.config.Database;
+
 
 public class BukuDAO {
 
@@ -13,7 +22,7 @@ public class BukuDAO {
             "SELECT buku_id, judul, penerbit, tahun_terbit, stok " +
             "FROM buku";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -43,7 +52,7 @@ public class BukuDAO {
             "FROM buku " +
             "WHERE buku_id = ?";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -73,7 +82,7 @@ public class BukuDAO {
             "INSERT INTO buku (judul, penerbit, tahun_terbit, stok) " +
             "VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, buku.getJudul());
@@ -97,7 +106,7 @@ public class BukuDAO {
             "UPDATE buku SET judul = ?, penerbit = ?, tahun_terbit = ?, stok = ? " +
             "WHERE buku_id = ?";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, buku.getJudul());
@@ -122,7 +131,7 @@ public class BukuDAO {
             "UPDATE buku SET stok = stok + ? " +
             "WHERE buku_id = ?";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, perubahan);

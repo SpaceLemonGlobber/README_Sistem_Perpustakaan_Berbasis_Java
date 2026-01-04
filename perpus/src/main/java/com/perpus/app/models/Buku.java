@@ -48,6 +48,8 @@ public class Buku {
     public int getTahunTerbit() { return tahunTerbit; }
     public void setTahunTerbit(int tahunTerbit) { this.tahunTerbit = tahunTerbit; }
 
+    
+
     public int getStok() { return stok; }
 
     @Override

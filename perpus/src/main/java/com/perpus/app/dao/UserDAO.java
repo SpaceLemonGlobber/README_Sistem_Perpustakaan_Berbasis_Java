@@ -1,4 +1,16 @@
-import java.sql.*;
+package com.perpus.app.dao;
+
+import com.perpus.app.models.User;
+import com.perpus.app.models.Admin;
+import com.perpus.app.models.Anggota;
+import com.perpus.config.Database;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
 
@@ -11,7 +23,7 @@ public class UserDAO {
             "FROM user " +
             "WHERE username = ? AND password = ?";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -45,7 +57,7 @@ public class UserDAO {
             "FROM user " +
             "WHERE user_id = ?";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);

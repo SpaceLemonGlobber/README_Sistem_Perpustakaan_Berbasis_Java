@@ -1,7 +1,18 @@
-import java.sql.*;
-import java.time.LocalDate;
+package com.perpus.app.dao;
+
+import com.perpus.app.models.Peminjaman;
+import com.perpus.app.models.Buku;
+import com.perpus.app.models.Anggota;
+import com.perpus.app.models.StatusPeminjaman;
+import com.perpus.config.Database;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class PeminjamanDAO {
 
@@ -13,7 +24,7 @@ public class PeminjamanDAO {
             "INSERT INTO peminjaman (anggota_id, buku_id, tanggal_pinjam, status) " +
             "VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, p.getAnggota().getUserId());
@@ -42,7 +53,7 @@ public class PeminjamanDAO {
             "JOIN user u ON p.anggota_id = u.user_id " +
             "WHERE p.peminjaman_id = ?";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -84,7 +95,7 @@ public class PeminjamanDAO {
             "UPDATE peminjaman SET status = ? " +
             "WHERE peminjaman_id = ?";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, status);
@@ -120,7 +131,7 @@ public class PeminjamanDAO {
             "JOIN user u ON p.anggota_id = u.user_id " +
             "WHERE p.status = ?";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, status.name());
@@ -167,7 +178,7 @@ public class PeminjamanDAO {
             "JOIN buku b ON p.buku_id = b.buku_id " +
             "WHERE p.anggota_id = ?";
 
-        try (Connection conn = Koneksi.getConnection();
+        try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, anggotaId);
