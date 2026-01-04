@@ -1,19 +1,17 @@
-package com.perpus.app.dao;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 
 public class UserDAO {
 
+    /* ===============================
+       LOGIN
+       =============================== */
     public User login(String username, String password) {
-        String sql = """
-            SELECT user_id, username, password, nama, role
-            FROM user
-            WHERE username = ? AND password = ?
-        """;
+        String sql =
+            "SELECT user_id, username, password, role " +
+            "FROM user " +
+            "WHERE username = ? AND password = ?";
 
-        try (Connection conn = koneksi.getConnection();
+        try (Connection conn = Koneksi.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -23,22 +21,50 @@ public class UserDAO {
 
             if (rs.next()) {
                 int id = rs.getInt("user_id");
-                String nama = rs.getString("nama");
                 String role = rs.getString("role");
 
-                if (role.equalsIgnoreCase(Admin.ROLE)) {
-                    return new Admin(id, username, password, nama);
-                }
-
-                if (role.equalsIgnoreCase(Anggota.ROLE)) {
-                    return new Anggota(id, username, password, nama);
+                if ("ADMIN".equalsIgnoreCase(role)) {
+                    return new Admin(id, username);
+                } else {
+                    return new Anggota(id, username);
                 }
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /* ===============================
+       GET USER BY ID
+       =============================== */
+    public User getById(int id) {
+        String sql =
+            "SELECT user_id, username, role " +
+            "FROM user " +
+            "WHERE user_id = ?";
+
+        try (Connection conn = Koneksi.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String role = rs.getString("role");
+                String username = rs.getString("username");
+
+                if ("ADMIN".equalsIgnoreCase(role)) {
+                    return new Admin(id, username);
+                } else {
+                    return new Anggota(id, username);
+                }
+            }
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 }
-
