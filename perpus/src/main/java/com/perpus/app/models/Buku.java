@@ -3,10 +3,10 @@ package com.perpus.app.models;
 public class Buku {
 
     private int bukuId;
-    private int kategoriID; 
+    private int kategoriID; // Mengikuti nama kolom di database
     private String judul;
     private String penerbit;
-    private int tahun_terbit; // Tetap gunakan snake_case untuk variabel jika mau
+    private int tahun_terbit; 
     private int stok;
 
     public Buku() {}
@@ -30,20 +30,24 @@ public class Buku {
         this.stok = stok;
     }
 
-    // --- GETTER (Diselaraskan dengan panggilan di BukuDAO) ---
+    // --- GETTER ---
     public int getBukuId() { return bukuId; }
-    public int getKategoriID() { return kategoriID; }
+    
+    // Sesuaikan dengan panggilan di BukuDAO (image_03ddb9.png)
+    public int getKategoriId() { return kategoriID; } 
+    
     public String getJudul() { return judul; }
     public String getPenerbit() { return penerbit; }
-    
-    // Perbaikan: Ubah nama method agar sesuai dengan image_0280e0.png
     public int getTahunTerbit() { return tahun_terbit; } 
-    
     public int getStok() { return stok; }
 
     // --- SETTER ---
     public void setBukuId(int bukuId) { this.bukuId = bukuId; }
+    
+    // Tambahkan setter yang konsisten
+    public void setKategoriId(int kategoriID) { this.kategoriID = kategoriID; }
     public void setKategoriID(int kategoriID) { this.kategoriID = kategoriID; }
+    
     public void setJudul(String judul) { this.judul = judul; }
     public void setPenerbit(String penerbit) { this.penerbit = penerbit; }
     public void setTahunTerbit(int tahun_terbit) { this.tahun_terbit = tahun_terbit; }

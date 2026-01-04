@@ -1,10 +1,15 @@
 package com.perpus.app.dao;
 
-import com.perpus.app.models.Peminjaman;
-import com.perpus.config.Database;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.perpus.app.models.Peminjaman;
+import com.perpus.config.Database;
 
 public class PeminjamanDAO {
 
@@ -125,19 +130,43 @@ public class PeminjamanDAO {
         }
     }
 
+    public List<Peminjaman> getAktif() {
+    List<Peminjaman> list = new ArrayList<>();
+    String sql = "SELECT * FROM peminjaman WHERE status = 'DIPINJAM'";
+    try (Connection conn = Database.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            list.add(mapResultSetToPeminjaman(rs));
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
     /* ==========================================================
        HELPER METHOD: Agar tidak menulis ulang pembuatan objek
        ========================================================== */
     private Peminjaman mapResultSetToPeminjaman(ResultSet rs) throws SQLException {
-        return new Peminjaman(
-            rs.getInt("peminjamanId"),
-            rs.getInt("anggotaId"),
-            rs.getInt("adminId"),
-            rs.getInt("bukuId"),
-            rs.getDate("tanggal_pinjam").toLocalDate(),
-            rs.getDate("tanggal_kembali") != null ? rs.getDate("tanggal_kembali").toLocalDate() : null,
-            rs.getString("status"),
-            rs.getDouble("denda")
-        );
+        Peminjaman p = new Peminjaman();
+        
+        p.setPeminjamanId(rs.getInt("peminjamanId"));
+        p.setAnggotaId(rs.getInt("anggotaId"));
+        p.setAdminId(rs.getInt("adminId"));
+        
+        if (rs.getDate("tanggal_pinjam") != null) {
+            p.setTanggalPinjam(rs.getDate("tanggal_pinjam").toLocalDate());
+        }
+        
+        // Ini tidak akan error lagi setelah langkah #1 dilakukan
+        if (rs.getDate("tanggal_kembali") != null) {
+            p.setTanggalKembali(rs.getDate("tanggal_kembali").toLocalDate());
+        }
+        
+        p.setStatus(rs.getString("status"));
+        p.setDenda(rs.getDouble("denda"));
+        
+        return p;
     }
 }

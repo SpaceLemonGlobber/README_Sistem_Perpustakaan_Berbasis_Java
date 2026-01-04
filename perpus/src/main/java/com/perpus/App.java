@@ -2,21 +2,22 @@ package com.perpus;
 
 import java.io.IOException;
 
+import com.perpus.app.controllers.DashboardController;
+import com.perpus.app.controllers.LoginController;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-/**
- * JavaFX App
- */
 public class App extends Application {
 
     private static Scene scene;
 
     @Override
     public void start(Stage stage) throws IOException {
+        // Ini akan memuat tampilan primary.fxml
         scene = new Scene(loadFXML("primary"), 640, 480);
         stage.setScene(scene);
         stage.show();
@@ -32,20 +33,39 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
-        // Tambahkan tes koneksi sebelum launch()
-    try {
-        System.out.println("Mencoba menghubungkan ke database...");
-        java.sql.Connection conn = com.perpus.config.Database.getConnection();
-        if (conn != null) {
-            System.out.println("Koneksi Database BERHASIL! (Port 3307)");
-            conn.close(); // Tutup setelah tes berhasil
+        // --- AWAL TEST DRIVE LOGIKA ---
+        try {
+            System.out.println("=== MEMULAI SISTEM PERPUSTAKAAN ===");
+            
+            // 1. Tes Koneksi
+            java.sql.Connection conn = com.perpus.config.Database.getConnection();
+            if (conn != null) {
+                System.out.println("✅ Database Terkoneksi (Port 3307)");
+                
+                // 2. Simulasi Login (Ganti 'admin' dengan data di DB-mu)
+                LoginController loginCtrl = new LoginController();
+                String role = loginCtrl.autentikasi("admin", "admin");
+                
+                if (role != null) {
+                    System.out.println("✅ Login Berhasil sebagai: " + role);
+                    
+                    // 3. Cek Data Dashboard
+                    DashboardController dashCtrl = new DashboardController();
+                    System.out.println("--- Statistik Database ---");
+                    System.out.println("Total Judul Buku: " + dashCtrl.getTotalJudulBuku());
+                    System.out.println("Peminjaman Aktif: " + dashCtrl.getTotalPeminjamanAktif());
+                } else {
+                    System.out.println("❌ Akun simulasi tidak ditemukan di database.");
+                }
+                
+                conn.close();
+            }
+        } catch (Exception e) {
+            System.err.println("🚨 Terjadi Masalah: " + e.getMessage());
         }
-    } catch (Exception e) {
-        System.err.println("Koneksi Database GAGAL!");
-        System.err.println("Pesan Error: " + e.getMessage());
-        // Kamu bisa memilih untuk lanjut launch() atau stop di sini
-    }
+        System.out.println("=== MEMULAI ANTARMUKA GRAFIS (UI) ===\n");
+        // --- AKHIR TEST DRIVE ---
+
         launch();
     }
-
 }
