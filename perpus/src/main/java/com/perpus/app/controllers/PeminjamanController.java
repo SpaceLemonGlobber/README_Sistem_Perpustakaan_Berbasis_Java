@@ -1,6 +1,12 @@
 package com.perpus.app.controllers;
-
 import java.util.List;
+
+import com.perpus.app.dao.BukuDAO;
+import com.perpus.app.dao.PeminjamanDAO;
+import com.perpus.app.models.Anggota;
+import com.perpus.app.models.Buku;
+import com.perpus.app.models.Peminjaman;
+import com.perpus.app.models.StatusPeminjaman;
 
 public class PeminjamanController {
 
@@ -36,9 +42,9 @@ public class PeminjamanController {
        =============================== */
     public boolean kembalikan(int peminjamanId) {
         Peminjaman p = peminjamanDAO.getById(peminjamanId);
-        if (p == null || !"aktif".equalsIgnoreCase(p.getStatus())) {
-            return false;
-        }
+        if (p == null || p.getStatus() != StatusPeminjaman.AKTIF) {
+        return false;
+    }
 
         boolean updated = peminjamanDAO.updateStatus(peminjamanId, "selesai");
         if (updated) {

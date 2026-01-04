@@ -1,16 +1,14 @@
 package com.perpus.app.dao;
 
-import com.perpus.app.models.User;
-import com.perpus.app.models.Admin;
-import com.perpus.app.models.Anggota;
-import com.perpus.config.Database;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.perpus.app.models.Admin;
+import com.perpus.app.models.Anggota;
+import com.perpus.app.models.User;
+import com.perpus.config.Database;
 
 public class UserDAO {
 

@@ -144,4 +144,17 @@ public class BukuDAO {
         }
         return false;
     }
+
+    public boolean delete(int bukuId) {
+    String sql = "DELETE FROM buku WHERE buku_id = ?";
+    try (Connection conn = Database.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        
+        ps.setInt(1, bukuId);
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
 }

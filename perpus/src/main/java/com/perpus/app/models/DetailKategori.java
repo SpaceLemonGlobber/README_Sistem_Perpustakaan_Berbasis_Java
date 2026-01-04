@@ -2,8 +2,8 @@ package com.perpus.app.models;
 
 public class DetailKategori {
 
-    private Kategori kategori;
-    private Buku buku;
+    private final Kategori kategori;
+    private final Buku buku;
 
     public DetailKategori(Kategori kategori, Buku buku) {
         this.kategori = kategori;

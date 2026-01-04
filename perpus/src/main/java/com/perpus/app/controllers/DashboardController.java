@@ -1,4 +1,8 @@
 package com.perpus.app.controllers;
+import com.perpus.app.dao.BukuDAO;
+import com.perpus.app.dao.PeminjamanDAO;
+import com.perpus.app.models.Buku;
+import com.perpus.app.models.StatusPeminjaman;
 
 public class DashboardController {
 
@@ -38,10 +42,10 @@ public class DashboardController {
     }
 
     public int getTotalPeminjamanAktifAnggota(int anggotaId) {
-        return (int) peminjamanDAO.getByAnggota(anggotaId)
-                .stream()
-                .filter(p -> p.getStatus().equalsIgnoreCase("aktif"))
-                .count();
+    return (int) peminjamanDAO.getByAnggota(anggotaId)
+        .stream()
+        .filter(p -> p.getStatus() == StatusPeminjaman.AKTIF) // Bandingkan langsung dengan Enum
+        .count();
     }
 }
 

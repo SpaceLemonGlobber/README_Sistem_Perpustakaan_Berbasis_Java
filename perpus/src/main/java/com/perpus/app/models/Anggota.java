@@ -10,6 +10,14 @@ public class Anggota extends User {
         this.noAnggota = noAnggota;
     }
 
+    // Tambahkan di dalam class Anggota.java
+    public Anggota(int id, String nama) {
+        super(); // Memanggil constructor User
+        this.userId = id;
+        this.nama = nama;
+    }
+
+
     public String getNoAnggota() {
         return noAnggota;
     }

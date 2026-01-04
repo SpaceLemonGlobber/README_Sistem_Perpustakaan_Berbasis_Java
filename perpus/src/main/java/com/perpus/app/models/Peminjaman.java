@@ -11,6 +11,16 @@ public class Peminjaman {
     private LocalDate tanggalKembali;
     private StatusPeminjaman status;
     private double denda;
+    private Buku buku;
+
+    public Peminjaman() {
+    }
+
+    // Tambahkan di dalam class Peminjaman.java
+    public Peminjaman(Anggota anggota, Buku buku) {
+        this.anggota = anggota;
+        this.buku = buku;
+    }
 
     // Constructor untuk INSERT
     public Peminjaman(Anggota anggota, Admin admin, LocalDate tanggalPinjam) {
@@ -49,4 +59,30 @@ public class Peminjaman {
     public LocalDate getTanggalKembali() { return tanggalKembali; }
     public StatusPeminjaman getStatus() { return status; }
     public double getDenda() { return denda; }
+
+
+    public void setPeminjamanId(int peminjamanId) { 
+        this.peminjamanId = peminjamanId; 
+    }
+
+    public void setAnggota(Anggota anggota) { 
+        this.anggota = anggota; 
+    }
+
+    public void setBuku(Buku buku) { 
+        this.buku = buku; 
+    }
+
+    public void setTanggalPinjam(LocalDate tanggalPinjam) { 
+        this.tanggalPinjam = tanggalPinjam; 
+    }
+
+    public void setStatus(StatusPeminjaman status) { 
+        this.status = status; 
+    }
+
+    // --- GETTER TAMBAHAN ---
+    public Buku getBuku() { 
+        return buku; 
+    }
 }

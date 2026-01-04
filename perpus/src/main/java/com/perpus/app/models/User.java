@@ -7,6 +7,9 @@ public abstract class User {
     protected String password;
     protected String nama;
 
+    public User() {
+    }
+
     public User(int userId, String username, String password, String nama) {
         this.userId = userId;
         this.username = username;

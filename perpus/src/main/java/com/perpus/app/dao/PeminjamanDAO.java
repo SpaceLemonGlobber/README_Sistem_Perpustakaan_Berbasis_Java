@@ -6,13 +6,9 @@ import com.perpus.app.models.Anggota;
 import com.perpus.app.models.StatusPeminjaman;
 import com.perpus.config.Database;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*; // Menggunakan wildcard untuk Date, Connection, dll.
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class PeminjamanDAO {
 
@@ -20,9 +16,7 @@ public class PeminjamanDAO {
        INSERT PEMINJAMAN
        =============================== */
     public boolean insert(Peminjaman p) {
-        String sql =
-            "INSERT INTO peminjaman (anggota_id, buku_id, tanggal_pinjam, status) " +
-            "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO peminjaman (anggota_id, buku_id, tanggal_pinjam, status) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -33,25 +27,25 @@ public class PeminjamanDAO {
             ps.setString(4, p.getStatus().name());
 
             return ps.executeUpdate() > 0;
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
 
+    
+
     /* ===============================
        GET PEMINJAMAN BY ID
        =============================== */
     public Peminjaman getById(int id) {
-        String sql =
-            "SELECT p.peminjaman_id, p.tanggal_pinjam, p.status, " +
-            "b.buku_id, b.judul, b.penerbit, b.tahun_terbit, b.stok, " +
-            "u.user_id, u.username " +
-            "FROM peminjaman p " +
-            "JOIN buku b ON p.buku_id = b.buku_id " +
-            "JOIN user u ON p.anggota_id = u.user_id " +
-            "WHERE p.peminjaman_id = ?";
+        String sql = "SELECT p.peminjaman_id, p.tanggal_pinjam, p.status, " +
+                     "b.buku_id, b.judul, b.penerbit, b.tahun_terbit, b.stok, " +
+                     "u.user_id, u.username, u.nama " + // Pastikan kolom 'nama' ada
+                     "FROM peminjaman p " +
+                     "JOIN buku b ON p.buku_id = b.buku_id " +
+                     "JOIN user u ON p.anggota_id = u.user_id " +
+                     "WHERE p.peminjaman_id = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -68,19 +62,18 @@ public class PeminjamanDAO {
                     rs.getInt("stok")
                 );
 
+                // Menggunakan constructor (id, nama) yang baru kita buat
                 Anggota anggota = new Anggota(
                     rs.getInt("user_id"),
-                    rs.getString("username")
+                    rs.getString("username") // Di sini kita pakai username sebagai display name sementara
                 );
 
                 Peminjaman p = new Peminjaman(anggota, buku);
                 p.setPeminjamanId(rs.getInt("peminjaman_id"));
                 p.setTanggalPinjam(rs.getDate("tanggal_pinjam").toLocalDate());
                 p.setStatus(StatusPeminjaman.valueOf(rs.getString("status")));
-
                 return p;
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -88,48 +81,17 @@ public class PeminjamanDAO {
     }
 
     /* ===============================
-       UPDATE STATUS PEMINJAMAN
-       =============================== */
-    public boolean updateStatus(int peminjamanId, String status) {
-        String sql =
-            "UPDATE peminjaman SET status = ? " +
-            "WHERE peminjaman_id = ?";
-
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, status);
-            ps.setInt(2, peminjamanId);
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    /* ===============================
-       GET PEMINJAMAN AKTIF
-       =============================== */
-    public List<Peminjaman> getAktif() {
-        return getByStatus(StatusPeminjaman.AKTIF);
-    }
-
-    /* ===============================
-       GET PEMINJAMAN BY STATUS
+       GET PEMINJAMAN BY STATUS (Dipakai oleh getAktif)
        =============================== */
     private List<Peminjaman> getByStatus(StatusPeminjaman status) {
         List<Peminjaman> list = new ArrayList<>();
-
-        String sql =
-            "SELECT p.peminjaman_id, p.tanggal_pinjam, p.status, " +
-            "b.buku_id, b.judul, b.penerbit, b.tahun_terbit, b.stok, " +
-            "u.user_id, u.username " +
-            "FROM peminjaman p " +
-            "JOIN buku b ON p.buku_id = b.buku_id " +
-            "JOIN user u ON p.anggota_id = u.user_id " +
-            "WHERE p.status = ?";
+        String sql = "SELECT p.peminjaman_id, p.tanggal_pinjam, p.status, " +
+                     "b.buku_id, b.judul, b.penerbit, b.tahun_terbit, b.stok, " +
+                     "u.user_id, u.username " +
+                     "FROM peminjaman p " +
+                     "JOIN buku b ON p.buku_id = b.buku_id " +
+                     "JOIN user u ON p.anggota_id = u.user_id " +
+                     "WHERE p.status = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -146,10 +108,7 @@ public class PeminjamanDAO {
                     rs.getInt("stok")
                 );
 
-                Anggota anggota = new Anggota(
-                    rs.getInt("user_id"),
-                    rs.getString("username")
-                );
+                Anggota anggota = new Anggota(rs.getInt("user_id"), rs.getString("username"));
 
                 Peminjaman p = new Peminjaman(anggota, buku);
                 p.setPeminjamanId(rs.getInt("peminjaman_id"));
@@ -158,25 +117,43 @@ public class PeminjamanDAO {
 
                 list.add(p);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
     }
 
+    public List<Peminjaman> getAktif() {
+        return getByStatus(StatusPeminjaman.AKTIF);
+    }
+
+    /* ===============================
+       UPDATE STATUS
+       =============================== */
+    public boolean updateStatus(int peminjamanId, String status) {
+        String sql = "UPDATE peminjaman SET status = ? WHERE peminjaman_id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, peminjamanId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
     /* ===============================
        GET PEMINJAMAN BY ANGGOTA
        =============================== */
     public List<Peminjaman> getByAnggota(int anggotaId) {
         List<Peminjaman> list = new ArrayList<>();
-
-        String sql =
-            "SELECT p.peminjaman_id, p.tanggal_pinjam, p.status, " +
-            "b.buku_id, b.judul, b.penerbit, b.tahun_terbit, b.stok " +
-            "FROM peminjaman p " +
-            "JOIN buku b ON p.buku_id = b.buku_id " +
-            "WHERE p.anggota_id = ?";
+        String sql = "SELECT p.peminjaman_id, p.tanggal_pinjam, p.status, " +
+                     "b.buku_id, b.judul, b.penerbit, b.tahun_terbit, b.stok " +
+                     "FROM peminjaman p " +
+                     "JOIN buku b ON p.buku_id = b.buku_id " +
+                     "WHERE p.anggota_id = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -193,7 +170,8 @@ public class PeminjamanDAO {
                     rs.getInt("stok")
                 );
 
-                Anggota anggota = new Anggota(anggotaId, "");
+                // Kita buat objek anggota minimalis dengan ID yang dicari
+                Anggota anggota = new Anggota(anggotaId, ""); 
 
                 Peminjaman p = new Peminjaman(anggota, buku);
                 p.setPeminjamanId(rs.getInt("peminjaman_id"));
@@ -202,7 +180,6 @@ public class PeminjamanDAO {
 
                 list.add(p);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

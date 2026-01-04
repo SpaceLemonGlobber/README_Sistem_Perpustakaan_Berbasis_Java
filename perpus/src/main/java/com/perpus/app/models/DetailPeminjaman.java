@@ -3,9 +3,9 @@ package com.perpus.app.models;
 public class DetailPeminjaman {
 
     private int detailId;
-    private Peminjaman peminjaman;
-    private Buku buku;
-    private int jumlah;
+    private final Peminjaman peminjaman;
+    private final Buku buku;
+    private final int jumlah;
 
     // Constructor untuk INSERT
     public DetailPeminjaman(Peminjaman peminjaman, Buku buku, int jumlah) {

@@ -1,4 +1,6 @@
 package com.perpus.app.controllers;
+import com.perpus.app.dao.UserDAO;
+import com.perpus.app.models.User;
 
 public class LoginController {
 

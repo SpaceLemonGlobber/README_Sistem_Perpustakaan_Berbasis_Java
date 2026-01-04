@@ -1,5 +1,9 @@
 package com.perpus.app.controllers;
 import com.perpus.app.dao.BukuDAO;
+import com.perpus.app.dao.PeminjamanDAO;
+import com.perpus.app.models.Anggota;
+import com.perpus.app.models.Buku;
+import com.perpus.app.models.Peminjaman;
 
 import java.util.List;
 

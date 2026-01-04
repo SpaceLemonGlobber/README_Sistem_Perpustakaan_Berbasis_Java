@@ -3,8 +3,8 @@ package com.perpus.app.models;
 public class Kategori {
 
     private int kategoriId;
-    private String namaKategori;
-    private String deskripsi;
+    private final String namaKategori;
+    private final String deskripsi;
 
     // Constructor SELECT
     public Kategori(int kategoriId, String namaKategori, String deskripsi) {
