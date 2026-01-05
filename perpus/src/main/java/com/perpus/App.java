@@ -2,9 +2,6 @@ package com.perpus;
 
 import java.io.IOException;
 
-import com.perpus.app.controllers.DashboardController;
-import com.perpus.app.controllers.LoginController;
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,56 +13,47 @@ public class App extends Application {
     private static Scene scene;
 
     @Override
-    public void start(Stage stage) throws IOException {
-        // Ini akan memuat tampilan primary.fxml
-        scene = new Scene(loadFXML("primary"), 640, 480);
-        stage.setScene(scene);
-        stage.show();
+    public void start(Stage stage) {
+        try {
+            // Memuat LoginView sebagai halaman pertama aplikasi
+            Parent root = loadFXML("LoginView"); 
+            scene = new Scene(root, 800, 500); // Ukuran default yang pas untuk login
+            
+            stage.setTitle("Sistem Manajemen Perpustakaan - Login");
+            stage.setScene(scene);
+            stage.setResizable(false); // Opsional: Agar jendela login tidak bisa di-resize
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("🚨 Gagal memuat file FXML Utama: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
-    static void setRoot(String fxml) throws IOException {
+    // Method statis untuk berpindah halaman secara global
+    public static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
+        // Penyesuaian path agar mencari file .fxml di folder resources/com/perpus/
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/com/perpus/" + fxml + ".fxml"));
         return fxmlLoader.load();
     }
 
     public static void main(String[] args) {
-        // --- AWAL TEST DRIVE LOGIKA ---
+        // --- CEK KONEKSI DATABASE SAAT STARTUP ---
         try {
-            System.out.println("=== MEMULAI SISTEM PERPUSTAKAAN ===");
-            
-            // 1. Tes Koneksi
+            System.out.println("=== SISTEM PERPUSTAKAAN: MEMULAI KONEKSI ===");
             java.sql.Connection conn = com.perpus.config.Database.getConnection();
             if (conn != null) {
-                System.out.println("✅ Database Terkoneksi (Port 3307)");
-                
-                // 2. Simulasi Login (Ganti 'admin' dengan data di DB-mu)
-                LoginController loginCtrl = new LoginController();
-                String role = loginCtrl.autentikasi("admin", "admin");
-                
-                if (role != null) {
-                    System.out.println("✅ Login Berhasil sebagai: " + role);
-                    
-                    // 3. Cek Data Dashboard
-                    DashboardController dashCtrl = new DashboardController();
-                    System.out.println("--- Statistik Database ---");
-                    System.out.println("Total Judul Buku: " + dashCtrl.getTotalJudulBuku());
-                    System.out.println("Peminjaman Aktif: " + dashCtrl.getTotalPeminjamanAktif());
-                } else {
-                    System.out.println("❌ Akun simulasi tidak ditemukan di database.");
-                }
-                
+                System.out.println("✅ Database Terkoneksi.");
                 conn.close();
             }
         } catch (Exception e) {
-            System.err.println("🚨 Terjadi Masalah: " + e.getMessage());
+            System.err.println("🚨 Peringatan: Gagal koneksi database di awal. Periksa port 3307.");
         }
-        System.out.println("=== MEMULAI ANTARMUKA GRAFIS (UI) ===\n");
-        // --- AKHIR TEST DRIVE ---
 
+        // Menjalankan UI JavaFX
         launch();
     }
 }

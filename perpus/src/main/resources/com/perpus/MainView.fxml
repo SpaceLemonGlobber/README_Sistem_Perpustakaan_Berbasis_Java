@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.perpus.app.controllers.DashboardController">
+   
+   <left>
+      <VBox prefHeight="600.0" prefWidth="220.0" spacing="10.0" style="-fx-background-color: #2c3e50;" BorderPane.alignment="CENTER">
+         <children>
+            <VBox alignment="CENTER" prefHeight="100.0" prefWidth="220.0">
+               <children>
+                  <Label text="PERPUSTAKAAN" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="20.0" />
+                     </font>
+                  </Label>
+                  <Label text="ADMIN PANEL" textFill="#bdc3c7">
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+            
+            <VBox spacing="5.0">
+               <children>
+                  <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#showDashboardBuku" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="📚 Dashboard Buku">
+                     <padding><Insets left="20.0" /></padding>
+                  </Button>
+                  <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#showKategoriBuku" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="📂 Kategori Buku">
+                     <padding><Insets left="20.0" /></padding>
+                  </Button>
+                  <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#showTransaksi" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="🔄 Transaksi Peminjaman">
+                     <padding><Insets left="20.0" /></padding>
+                  </Button>
+                  <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#showLaporan" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="📊 Laporan Denda">
+                     <padding><Insets left="20.0" /></padding>
+                  </Button>
+                  <Button alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#showAnggota" 
+                        prefHeight="45.0" prefWidth="220.0" 
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-cursor: hand;" text="👥 Manajemen Anggota">
+                <padding><Insets left="20.0" /></padding>
+                </Button>
+               </children>
+            </VBox>
+            
+            <VBox alignment="BOTTOM_CENTER" VBox.vgrow="ALWAYS">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#handleLogout" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;" text="LOGOUT">
+                     <VBox.margin><Insets bottom="20.0" /></VBox.margin>
+                     <font><Font name="System Bold" size="12.0" /></font>
+                  </Button>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </left>
+
+   <center>
+      <VBox fx:id="mainContent" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #ecf0f1;" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Selamat Datang di Sistem Manajemen Perpustakaan">
+               <font><Font size="22.0" /></font>
+            </Label>
+            <Label fx:id="adminLabel" text="Halo, Admin!" textFill="#7f8c8d">
+               <font><Font size="16.0" /></font>
+            </Label>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

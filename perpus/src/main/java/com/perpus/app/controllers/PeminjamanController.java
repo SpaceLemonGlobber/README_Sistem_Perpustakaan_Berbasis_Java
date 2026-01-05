@@ -1,80 +1,111 @@
 package com.perpus.app.controllers;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import com.perpus.app.dao.BukuDAO;
 import com.perpus.app.dao.PeminjamanDAO;
-import com.perpus.app.models.Anggota;
 import com.perpus.app.models.Buku;
 import com.perpus.app.models.Peminjaman;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import java.time.LocalDate;
 
 public class PeminjamanController {
 
-    private final PeminjamanDAO peminjamanDAO;
-    private final BukuDAO bukuDAO;
+    @FXML private TextField txtIdAnggota, txtIdBuku;
+    @FXML private TableView<Peminjaman> tablePeminjaman;
+    @FXML private TableColumn<Peminjaman, Integer> colId;
+    @FXML private TableColumn<Peminjaman, String> colNamaAnggota, colJudulBuku, colStatus;
+    @FXML private TableColumn<Peminjaman, LocalDate> colTglPinjam, colTglKembali;
 
-    public PeminjamanController() {
-        this.peminjamanDAO = new PeminjamanDAO();
-        this.bukuDAO = new BukuDAO();
+    private final PeminjamanDAO peminjamanDAO = new PeminjamanDAO();
+    private final BukuDAO bukuDAO = new BukuDAO();
+
+    @FXML
+    public void initialize() {
+        // Gunakan getId() karena sudah kita buat aliasnya di model
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colNamaAnggota.setCellValueFactory(new PropertyValueFactory<>("namaAnggota"));
+        colJudulBuku.setCellValueFactory(new PropertyValueFactory<>("judulBuku"));
+        colTglPinjam.setCellValueFactory(new PropertyValueFactory<>("tanggalPinjam"));
+        colTglKembali.setCellValueFactory(new PropertyValueFactory<>("tanggalKembali"));
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+        refreshTable();
     }
 
-    /* ===============================
-       1. PINJAM BUKU
-       =============================== */
-    public boolean pinjam(Anggota anggota, int bukuId) {
-        Buku buku = bukuDAO.getById(bukuId);
-
-        // Validasi stok menggunakan getter yang sudah kita buat
-        if (buku == null || buku.getStok() <= 0) {
-            return false;
-        }
-
-        // PERBAIKAN: Gunakan ID (int), bukan objek
-        Peminjaman peminjaman = new Peminjaman(anggota.getUserId(), bukuId);
-        peminjaman.setTanggalPinjam(LocalDate.now());
-        peminjaman.setStatus("DIPINJAM"); // Gunakan String sesuai DB
-        peminjaman.setAdminId(1); // Sementara default admin ID 1
-
-        boolean sukses = peminjamanDAO.insert(peminjaman);
-        if (sukses) {
-            // Memanggil updateStok di BukuDAO
-            bukuDAO.updateStok(-1, bukuId);
-        }
-        return sukses;
+    private void refreshTable() {
+        // Memastikan memanggil getByStatus atau getAktif sesuai yang ada di DAO
+        tablePeminjaman.setItems(FXCollections.observableArrayList(peminjamanDAO.getByStatus("DIPINJAM")));
     }
 
-    /* ===============================
-       2. KEMBALIKAN BUKU
-       =============================== */
-    public boolean kembalikan(int peminjamanId) {
-        Peminjaman p = peminjamanDAO.getById(peminjamanId);
-        
-        // Cek apakah data ada dan statusnya masih "DIPINJAM"
-        if (p == null || !"DIPINJAM".equalsIgnoreCase(p.getStatus())) {
-            return false;
-        }
+    @FXML
+    private void handleProsesPinjam() {
+        try {
+            int idAnggota = Integer.parseInt(txtIdAnggota.getText());
+            int idBuku = Integer.parseInt(txtIdBuku.getText());
 
-        boolean updated = peminjamanDAO.updateStatus(peminjamanId, "DIKEMBALIKAN");
-        if (updated) {
-            // Ambil ID buku dari objek p dan tambah stoknya
-            bukuDAO.updateStok(1, p.getBukuId());
+            Buku buku = bukuDAO.getById(idBuku);
+            if (buku == null || buku.getStok() <= 0) {
+                showAlert("Gagal", "Buku tidak ditemukan atau stok habis!");
+                return;
+            }
+
+            Peminjaman p = new Peminjaman();
+            p.setAnggotaId(idAnggota);
+            p.setBukuId(idBuku);
+            p.setTanggalPeminjaman(LocalDate.now());
+            p.setTanggalPengembalian(LocalDate.now().plusDays(7));
+            p.setStatus("DIPINJAM");
+            p.setDenda(0.0);
+            
+            // Mengambil ID Admin dari sesi login jika tersedia
+            if (LoginController.getUserSession() != null) {
+                p.setAdminId(LoginController.getUserSession().getId());
+            }
+
+            // Gunakan insert(p) sesuai signature di DAO terbaru
+            if (peminjamanDAO.insert(p)) {
+                // Update stok
+                buku.setStok(buku.getStok() - 1);
+                bukuDAO.update(buku);
+                
+                refreshTable();
+                txtIdAnggota.clear();
+                txtIdBuku.clear();
+                showAlert("Berhasil", "Peminjaman berhasil dicatat!");
+            }
+        } catch (NumberFormatException e) {
+            showAlert("Error", "ID Anggota dan ID Buku harus berupa angka!");
         }
-        return updated;
     }
 
-    /* ===============================
-       3. LIST PEMINJAMAN AKTIF
-       =============================== */
-    public List<Peminjaman> getPeminjamanAktif() {
-        // Sesuaikan dengan method di DAO kamu (getByStatus)
-        return peminjamanDAO.getByStatus("DIPINJAM");
+    @FXML
+    private void handleProsesKembali() {
+        Peminjaman selected = tablePeminjaman.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Peringatan", "Pilih data peminjaman di tabel!");
+            return;
+        }
+
+        // Gunakan getId() alias dari peminjamanId
+        if (peminjamanDAO.updateStatus(selected.getId(), "KEMBALI")) {
+            Buku buku = bukuDAO.getById(selected.getBukuId());
+            if (buku != null) {
+                buku.setStok(buku.getStok() + 1);
+                bukuDAO.update(buku);
+            }
+            
+            refreshTable();
+            showAlert("Berhasil", "Buku telah dikembalikan!");
+        }
     }
 
-    /* ===============================
-       4. RIWAYAT PER ANGGOTA
-       =============================== */
-    public List<Peminjaman> getRiwayatAnggota(int anggotaId) {
-        return peminjamanDAO.getByAnggota(anggotaId);
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
