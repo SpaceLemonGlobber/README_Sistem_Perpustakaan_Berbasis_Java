@@ -45,9 +45,7 @@ public class BukuController {
         // "id" memanggil getId() yang sudah kita buat sebagai alias di model Buku
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colJudul.setCellValueFactory(new PropertyValueFactory<>("judul"));
-        colPenerbit.setCellValueFactory(new PropertyValueFactory<>("penerbit"));
-        
-        // PERBAIKAN: Harus sesuai dengan nama getter di model Buku (getTahunTerbit)
+       
         colTahun.setCellValueFactory(new PropertyValueFactory<>("tahunTerbit"));
         colStok.setCellValueFactory(new PropertyValueFactory<>("stok"));
 

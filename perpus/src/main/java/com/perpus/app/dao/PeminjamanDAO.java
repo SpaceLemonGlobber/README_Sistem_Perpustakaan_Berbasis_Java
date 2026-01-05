@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,25 +21,42 @@ public class PeminjamanDAO {
 
     // --- 2. Method INSERT (Disesuaikan dengan field model Anda) ---
     public boolean insert(Peminjaman p) {
-        String sql = "INSERT INTO peminjaman (anggotaId, adminId, bukuId, tanggal_pinjam, tanggal_kembali, status, denda) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    String sqlHeader = "INSERT INTO peminjaman (anggotaId, adminId, tanggal_pinjam, status, denda) VALUES (?, ?, ?, ?, ?)";
+    String sqlDetail = "INSERT INTO detailpeminjaman (peminjamanId, bukuId, jumlah_pinjam) VALUES (?, ?, 1)";
 
-            ps.setInt(1, p.getAnggotaId());
-            ps.setInt(2, p.getAdminId()); // Pastikan adminId diisi (bisa 0 jika member yang pinjam mandiri)
-            ps.setInt(3, p.getBukuId());
-            ps.setDate(4, Date.valueOf(p.getTanggalPeminjaman()));
-            // Tambahkan tanggal kembali agar tidak error compilation lagi
-            ps.setDate(5, p.getTanggalPengembalian() != null ? Date.valueOf(p.getTanggalPengembalian()) : null);
-            ps.setString(6, p.getStatus());
-            ps.setDouble(7, p.getDenda());
+    try (Connection conn = Database.getConnection()) {
+        conn.setAutoCommit(false); // Mulai transaksi
 
-            return ps.executeUpdate() > 0;
+        try (PreparedStatement psH = conn.prepareStatement(sqlHeader, Statement.RETURN_GENERATED_KEYS)) {
+            psH.setInt(1, p.getAnggotaId());
+            psH.setObject(2, p.getAdminId() == 0 ? null : p.getAdminId()); // adminId boleh null di DB
+            psH.setDate(3, Date.valueOf(p.getTanggalPeminjaman()));
+            psH.setString(4, p.getStatus());
+            psH.setDouble(5, p.getDenda());
+            psH.executeUpdate();
+
+            // Ambil peminjamanId yang baru saja dibuat
+            ResultSet rs = psH.getGeneratedKeys();
+            if (rs.next()) {
+                int newId = rs.getInt(1);
+                try (PreparedStatement psD = conn.prepareStatement(sqlDetail)) {
+                    psD.setInt(1, newId);
+                    psD.setInt(2, p.getBukuId());
+                    psD.executeUpdate();
+                }
+            }
+            conn.commit(); // Simpan permanen
+            return true;
         } catch (SQLException e) {
+            conn.rollback(); // Batalkan jika ada yang gagal
             e.printStackTrace();
             return false;
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
     }
+}
 
     // --- 3. Method GET BY ANGGOTA & STATUS (Dibutuhkan UserDashboardController) ---
     public List<Peminjaman> getByAnggotaAndStatus(int anggotaId, String status) {
@@ -124,21 +142,58 @@ public class PeminjamanDAO {
         p.setDenda(rs.getDouble("denda"));
         return p;
     }
-    // Tambahkan method ini di com.perpus.app.dao.PeminjamanDAO.java
 
+public List<Peminjaman> getAll() {
+    List<Peminjaman> list = new ArrayList<>();
+    // Query diperbaiki sesuai struktur DB Anda (peminjaman -> detailpeminjaman -> buku)
+    String sql = "SELECT p.*, a.nama as namaAnggota, b.judul as judulBuku, dp.bukuId " +
+                 "FROM peminjaman p " +
+                 "JOIN anggota a ON p.anggotaId = a.anggotaId " +
+                 "JOIN detailpeminjaman dp ON p.peminjamanId = dp.peminjamanId " +
+                 "JOIN buku b ON dp.bukuId = b.bukuId";
+    
+    try (Connection conn = Database.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        
+        while (rs.next()) {
+            Peminjaman p = mapResultSetToPeminjaman(rs);
+            // Ambil data dari JOIN
+            p.setBukuId(rs.getInt("bukuId")); 
+            p.setNamaAnggota(rs.getString("namaAnggota"));
+            p.setJudulBuku(rs.getString("judulBuku"));
+            list.add(p);
+        }
+    } catch (SQLException e) {
+        System.err.println("SQL Error di getAll: " + e.getMessage());
+    }
+    return list;
+}
+
+// Tambahkan juga method getByStatus agar Dashboard tidak error
 public List<Peminjaman> getByStatus(String status) {
     List<Peminjaman> list = new ArrayList<>();
-    String sql = "SELECT * FROM peminjaman WHERE status = ?";
+    String sql = "SELECT p.*, a.nama as namaAnggota, b.judul as judulBuku, dp.bukuId " +
+                 "FROM peminjaman p " +
+                 "JOIN anggota a ON p.anggotaId = a.anggotaId " +
+                 "JOIN detailpeminjaman dp ON p.peminjamanId = dp.peminjamanId " +
+                 "JOIN buku b ON dp.bukuId = b.bukuId " +
+                 "WHERE p.status = ?";
     try (Connection conn = Database.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
         ps.setString(1, status);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            list.add(mapResultSetToPeminjaman(rs));
+            Peminjaman p = mapResultSetToPeminjaman(rs);
+            p.setBukuId(rs.getInt("bukuId"));
+            p.setNamaAnggota(rs.getString("namaAnggota"));
+            p.setJudulBuku(rs.getString("judulBuku"));
+            list.add(p);
         }
     } catch (SQLException e) {
         e.printStackTrace();
     }
     return list;
 }
+
 }

@@ -6,6 +6,7 @@ public class Buku {
     private int kategoriID; 
     private String judul;
     private String penerbit;
+    private String namaKategori;
     private int tahun_terbit; 
     private int stok;
 
@@ -30,8 +31,6 @@ public class Buku {
         this.stok = stok;
     }
 
-    // --- PERBAIKAN UTAMA ---
-    // Tambahkan method ini agar pemanggilan getId() di Controller tidak error
     public int getId() { 
         return bukuId; 
     }
@@ -43,6 +42,7 @@ public class Buku {
     public String getPenerbit() { return penerbit; }
     public int getTahunTerbit() { return tahun_terbit; } 
     public int getStok() { return stok; }
+    public String getNamaKategori() { return namaKategori; }
 
     // --- SETTER ---
     public void setBukuId(int bukuId) { this.bukuId = bukuId; }
@@ -52,6 +52,7 @@ public class Buku {
     public void setPenerbit(String penerbit) { this.penerbit = penerbit; }
     public void setTahunTerbit(int tahun_terbit) { this.tahun_terbit = tahun_terbit; }
     public void setStok(int stok) { this.stok = stok; }
+    public void setNamaKategori(String namaKategori) { this.namaKategori = namaKategori; }
 
     @Override
     public String toString() {
