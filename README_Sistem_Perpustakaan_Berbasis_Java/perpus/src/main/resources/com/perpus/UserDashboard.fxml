@@ -37,6 +37,9 @@
                     <columns>
                       <TableColumn fx:id="colJudul" prefWidth="300.0" text="Judul Buku" />
                       <TableColumn fx:id="colStok" prefWidth="100.0" text="Stok Tersedia" />
+                           <TableColumn fx:id="colKategori" prefWidth="132.2264404296875" text="Kategori" />
+                           <TableColumn fx:id="colPenerbit" prefWidth="108.67926025390625" text="Penerbit" />
+                           <TableColumn fx:id="colTahunTerbit" prefWidth="98.7169189453125" text="Tahun Terbit" />
                     </columns>
                   </TableView>
                   <Button maxWidth="Infinity" onAction="#handleBorrow" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold;" text="BORROW SELECTED BOOK" />
@@ -50,10 +53,10 @@
                   <padding><Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /></padding>
                   <TableView fx:id="tableActive" VBox.vgrow="ALWAYS">
                     <columns>
-                      <TableColumn fx:id="colActiveId" prefWidth="80.0" text="ID Pinjam" />
-                      <TableColumn fx:id="colActiveJudul" prefWidth="250.0" text="Judul Buku" />
-                      <TableColumn fx:id="colActiveTglKembali" prefWidth="150.0" text="Jatuh Tempo" />
-                    </columns>
+                      <TableColumn fx:id="colActiveId" text="ID Pinjam" />
+                      <TableColumn fx:id="colActiveJudul" text="Judul Buku" />
+                      <TableColumn fx:id="colActiveJatuhTempo" text="Jatuh Tempo" /> <TableColumn fx:id="colActiveStatus" text="Status" /> 
+                      </columns>
                   </TableView>
                   <Button maxWidth="Infinity" onAction="#handleReturn" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;" text="RETURN SELECTED BOOK" />
                </VBox>

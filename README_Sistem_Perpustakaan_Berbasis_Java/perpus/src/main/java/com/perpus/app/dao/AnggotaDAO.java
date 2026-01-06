@@ -128,4 +128,21 @@ public class AnggotaDAO {
 
 }
 
+    public Integer getAnggotaIdByUserId(int userId) {
+        String sql = "SELECT anggotaId FROM anggota WHERE userID = ?";
+        try (Connection conn = Database.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("anggotaId");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
