@@ -16,18 +16,23 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -39,30 +44,27 @@ public class DashboardController {
     // --- Table Buku ---
     @FXML private TableView<Buku> tableBuku;
     @FXML private TableColumn<Buku, Integer> colBukuId;
-    @FXML private TableColumn<Buku, String> colJudul;
-    @FXML private TableColumn<Buku, String> colPenerbit;
-    @FXML private TableColumn<Buku, String> colKategori;
+    @FXML private TableColumn<Buku, String> colJudul, colPenerbit, colKategori;
     @FXML private TableColumn<Buku, Integer> colStok;
     @FXML private TableColumn<Buku, Void> colAksi;
     @FXML private TextField searchBukuField;
 
-    // --- Table Anggota, Transaksi, Kategori ---
+    // --- Table Anggota ---
     @FXML private TableView<Anggota> tableAnggota;
     @FXML private TableColumn<Anggota, Integer> colAnggotaId;
-    @FXML private TableColumn<Anggota, String> colNama;
-    @FXML private TableColumn<Anggota, String> colEmail;
+    @FXML private TableColumn<Anggota, String> colNama, colEmail, colNoTelp;
+    @FXML private TableColumn<Anggota, Void> colAksiAnggota;
 
+    // --- Table Transaksi & Kategori ---
     @FXML private TableView<Peminjaman> tableTransaksi;
     @FXML private TableColumn<Peminjaman, Integer> colTransId;
-    @FXML private TableColumn<Peminjaman, String> colTransUser;
-    @FXML private TableColumn<Peminjaman, String> colTransBuku;
-    @FXML private TableColumn<Peminjaman, String> colTransStatus;
+    @FXML private TableColumn<Peminjaman, String> colTransUser, colTransBuku, colTransStatus;
 
     @FXML private TableView<Kategori> tableKategori;
     @FXML private TableColumn<Kategori, Integer> colKategoriId;
-    @FXML private TableColumn<Kategori, String> colNamaKategori;
-    @FXML private TableColumn<Kategori, String> colDeskripsi;
+    @FXML private TableColumn<Kategori, String> colNamaKategori, colDeskripsi;
 
+    // --- DAO Instances ---
     private final BukuDAO bukuDAO = new BukuDAO();
     private final AnggotaDAO anggotaDAO = new AnggotaDAO();
     private final PeminjamanDAO peminjamanDAO = new PeminjamanDAO();
@@ -84,40 +86,16 @@ public class DashboardController {
         colPenerbit.setCellValueFactory(new PropertyValueFactory<>("penerbit"));
         colKategori.setCellValueFactory(new PropertyValueFactory<>("namaKategori"));
         colStok.setCellValueFactory(new PropertyValueFactory<>("stok"));
+        setupAksiBuku();
 
-        // Setup Tombol Edit & Hapus di Kolom Aksi
-        colAksi.setCellFactory(param -> new TableCell<>() {
-            private final Button btnEdit = new Button("Edit");
-            private final Button btnDelete = new Button("Hapus");
-            private final HBox pane = new HBox(5, btnEdit, btnDelete);
-
-            {
-                btnEdit.setStyle("-fx-background-color: #f1c40f; -fx-text-fill: white; -fx-cursor: hand;");
-                btnDelete.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
-                
-                btnEdit.setOnAction(e -> {
-                    Buku b = getTableRow().getItem();
-                    if (b != null) showEditBuku(b);
-                });
-                
-                btnDelete.setOnAction(e -> {
-                    Buku b = getTableRow().getItem();
-                    if (b != null) handleDeleteBuku(b);
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : pane);
-            }
-        });
-
-        // Mapping Anggota, Transaksi, Kategori
-        colAnggotaId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        // Mapping Anggota
+        colAnggotaId.setCellValueFactory(new PropertyValueFactory<>("anggotaId"));
         colNama.setCellValueFactory(new PropertyValueFactory<>("nama"));
         colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
+        colNoTelp.setCellValueFactory(new PropertyValueFactory<>("noTelp"));
+        setupAksiAnggota();
 
+        // Mapping Transaksi & Kategori
         colTransId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colTransUser.setCellValueFactory(new PropertyValueFactory<>("namaAnggota"));
         colTransBuku.setCellValueFactory(new PropertyValueFactory<>("judulBuku"));
@@ -136,70 +114,164 @@ public class DashboardController {
     }
 
     /* ===============================
-        LOGIKA CRUD BUKU
+        MANAJEMEN BUKU
        =============================== */
+
+    private void setupAksiBuku() {
+        colAksi.setCellFactory(param -> new TableCell<>() {
+            private final Button btnEdit = new Button("Edit");
+            private final Button btnDelete = new Button("Hapus");
+            private final HBox pane = new HBox(5, btnEdit, btnDelete);
+            {
+                btnEdit.setStyle("-fx-background-color: #f1c40f; -fx-text-fill: white; -fx-cursor: hand;");
+                btnDelete.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
+                btnEdit.setOnAction(e -> showEditBuku(getTableRow().getItem()));
+                btnDelete.setOnAction(e -> handleDeleteBuku(getTableRow().getItem()));
+            }
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : pane);
+            }
+        });
+    }
 
     @FXML
     private void showAddBuku() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/perpus/BukuForm.fxml"));
-            Parent root = loader.load();
-            BukuFormController controller = loader.getController();
-
-            Stage stage = new Stage();
-            stage.setTitle("Tambah Buku Baru");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
-
-            if (controller.isSaveClicked()) {
-                if (bukuDAO.insert(controller.getBuku())) {
-                    refreshAllData();
-                } else {
-                    showError("Gagal menambah buku. Cek relasi kategori.");
-                }
-            }
-        } catch (IOException e) { e.printStackTrace(); }
+        openBukuForm(null, "Tambah Buku Baru");
     }
 
     private void showEditBuku(Buku buku) {
+        if (buku != null) openBukuForm(buku, "Edit Buku");
+    }
+
+    private void openBukuForm(Buku buku, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/perpus/BukuForm.fxml"));
             Parent root = loader.load();
             BukuFormController controller = loader.getController();
-            
-            // Masukkan data buku yang akan diedit ke form
-            controller.setBuku(buku);
+            if (buku != null) controller.setBuku(buku);
 
             Stage stage = new Stage();
-            stage.setTitle("Edit Buku");
+            stage.setTitle(title);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(new Scene(root));
             stage.showAndWait();
 
             if (controller.isSaveClicked()) {
-                if (bukuDAO.update(controller.getBuku())) {
-                    refreshAllData();
-                } else {
-                    showError("Gagal memperbarui buku.");
-                }
+                boolean success = (buku == null) ? bukuDAO.insert(controller.getBuku()) : bukuDAO.update(controller.getBuku());
+                if (success) refreshAllData();
+                else showError("Gagal menyimpan data buku.");
             }
         } catch (IOException e) { e.printStackTrace(); }
     }
 
     private void handleDeleteBuku(Buku buku) {
+        if (buku == null) return;
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Hapus buku: " + buku.getJudul() + "?");
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                // Hapus berdasarkan bukuId
-                if (bukuDAO.delete(buku.getBukuId())) {
-                    refreshAllData();
-                } else {
-                    showError("Gagal menghapus! Buku mungkin sedang dalam transaksi pinjam.");
-                }
+                if (bukuDAO.delete(buku.getBukuId())) refreshAllData();
+                else showError("Gagal menghapus! Buku mungkin sedang dipinjam.");
             }
         });
     }
+
+    /* ===============================
+        MANAJEMEN ANGGOTA
+       =============================== */
+
+    private void setupAksiAnggota() {
+        colAksiAnggota.setCellFactory(param -> new TableCell<>() {
+            private final Button btnEdit = new Button("Edit");
+            private final Button btnDelete = new Button("Hapus");
+            private final HBox pane = new HBox(5, btnEdit, btnDelete);
+            {
+                btnEdit.setStyle("-fx-background-color: #f1c40f; -fx-text-fill: white; -fx-cursor: hand;");
+                btnDelete.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
+                btnEdit.setOnAction(e -> showEditAnggota(getTableRow().getItem()));
+                btnDelete.setOnAction(e -> handleDeleteAnggota(getTableRow().getItem()));
+            }
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : pane);
+            }
+        });
+    }
+
+    @FXML
+    private void showAddAnggota() {
+        Anggota res = showAnggotaForm(null);
+        if (res != null && anggotaDAO.insert(res)) refreshAllData();
+    }
+
+    private void showEditAnggota(Anggota a) {
+        if (a != null) {
+            Anggota res = showAnggotaForm(a);
+            if (res != null && anggotaDAO.update(res)) refreshAllData();
+        }
+    }
+
+    private void handleDeleteAnggota(Anggota a) {
+    if (a == null) return;
+    
+    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Hapus anggota: " + a.getNama() + "?");
+    confirm.showAndWait().ifPresent(response -> {
+        if (response == ButtonType.OK) {
+            if (anggotaDAO.delete(a.getUserId())) { 
+                refreshAllData();
+            } else {
+                showError("Gagal menghapus! Pastikan anggota tidak memiliki tanggungan pinjaman.");
+            }
+        }
+    });
+    }
+
+    private Anggota showAnggotaForm(Anggota existing) {
+        Dialog<Anggota> dialog = new Dialog<>();
+        dialog.setTitle("Form Anggota");
+        dialog.setHeaderText(existing == null ? "Tambah Anggota Baru" : "Edit Data Anggota");
+
+        ButtonType saveButtonType = new ButtonType("Simpan", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10); grid.setVgap(10);
+        grid.setPadding(new Insets(20, 20, 10, 20));
+
+        TextField nama = new TextField(existing != null ? existing.getNama() : "");
+        TextField email = new TextField(existing != null ? existing.getEmail() : "");
+        TextField noTelp = new TextField(existing != null ? existing.getNo_telp() : "");
+        TextField user = new TextField(existing != null ? existing.getUsername() : "");
+        PasswordField pass = new PasswordField();
+        if (existing != null) pass.setText(existing.getPassword());
+
+        grid.add(new Label("Nama:"), 0, 0); grid.add(nama, 1, 0);
+        grid.add(new Label("Email:"), 0, 1); grid.add(email, 1, 1);
+        grid.add(new Label("No Telp:"), 0, 2); grid.add(noTelp, 1, 2);
+        grid.add(new Label("Username:"), 0, 3); grid.add(user, 1, 3);
+        grid.add(new Label("Password:"), 0, 4); grid.add(pass, 1, 4);
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.setResultConverter(btn -> {
+            if (btn == saveButtonType) {
+                if (existing == null) {
+                    return new Anggota(0, user.getText(), pass.getText(), nama.getText(), 0, email.getText(), noTelp.getText());
+                }
+                existing.setNama(nama.getText()); existing.setEmail(email.getText());
+                existing.setNo_telp(noTelp.getText()); existing.setUsername(user.getText());
+                existing.setPassword(pass.getText());
+                return existing;
+            }
+            return null;
+        });
+        return dialog.showAndWait().orElse(null);
+    }
+
+    /* ===============================
+        SISTEM UTILITAS
+       =============================== */
 
     @FXML
     private void handleSearchBuku() {
@@ -217,8 +289,6 @@ public class DashboardController {
             Parent root = FXMLLoader.load(getClass().getResource("/com/perpus/LoginView.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Login - Perpustakaan");
-            stage.centerOnScreen();
             stage.show();
         } catch (IOException e) { e.printStackTrace(); }
     }

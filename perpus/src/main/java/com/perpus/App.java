@@ -15,9 +15,8 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            // Memuat LoginView sebagai halaman pertama aplikasi
             Parent root = loadFXML("LoginView"); 
-            scene = new Scene(root, 800, 500); // Ukuran default yang pas untuk login
+            scene = new Scene(root, 800, 500); 
             
             stage.setTitle("Sistem Manajemen Perpustakaan - Login");
             stage.setScene(scene);

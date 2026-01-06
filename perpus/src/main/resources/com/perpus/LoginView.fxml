@@ -10,7 +10,7 @@
 
 <VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.perpus.app.controllers.LoginController">
    <children>
-      <Label text="LOGIN">
+      <Label text="LOGIN README">
          <font>
             <Font name="System Bold" size="24.0" />
          </font>

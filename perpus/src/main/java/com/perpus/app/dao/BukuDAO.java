@@ -139,4 +139,28 @@ public class BukuDAO {
         }
         return false;
     }
+
+    // Tambahkan di BukuDAO.java
+    public Buku getById(int id) {
+    String sql = "SELECT * FROM buku WHERE bukuId = ?";
+    try (Connection conn = Database.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Buku buku = new Buku(
+                rs.getInt("bukuId"),
+                rs.getInt("kategoriID"),
+                rs.getString("judul"),
+                rs.getString("penerbit"),
+                rs.getInt("tahun_terbit"),
+                rs.getInt("stok")
+            );
+            return buku;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
 }
