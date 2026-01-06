@@ -37,6 +37,9 @@
                     <columns>
                       <TableColumn fx:id="colJudul" prefWidth="300.0" text="Judul Buku" />
                       <TableColumn fx:id="colStok" prefWidth="100.0" text="Stok Tersedia" />
+                           <TableColumn fx:id="colKategori" prefWidth="132.2264404296875" text="Kategori" />
+                           <TableColumn fx:id="colPenerbit" prefWidth="108.67926025390625" text="Penerbit" />
+                           <TableColumn fx:id="colTahunTerbit" prefWidth="98.7169189453125" text="Tahun Terbit" />
                     </columns>
                   </TableView>
                   <Button maxWidth="Infinity" onAction="#handleBorrow" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold;" text="BORROW SELECTED BOOK" />

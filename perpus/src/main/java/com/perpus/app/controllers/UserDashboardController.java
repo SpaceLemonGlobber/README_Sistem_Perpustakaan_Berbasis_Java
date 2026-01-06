@@ -3,6 +3,7 @@ package com.perpus.app.controllers;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.perpus.app.dao.AnggotaDAO;
 import com.perpus.app.dao.BukuDAO;
@@ -26,6 +27,11 @@ public class UserDashboardController {
     @FXML private TextField searchField;
     @FXML private TableView<Buku> tableSearch;
     @FXML private TableColumn<Buku, String> colJudul;
+    @FXML private TableColumn<Buku, Integer> colStok;
+    @FXML private TableColumn<Buku, String> colKategori;
+    @FXML private TableColumn<Buku, String> colPenerbit;
+    @FXML private TableColumn<Buku, Integer> colTahunTerbit;
+
 
     // Tabel Active & Return
     @FXML private TableView<Peminjaman> tableActive;
@@ -47,16 +53,26 @@ public class UserDashboardController {
     public void initialize() {
         setupColumns();
         refreshAllData();
+        loadAvailableBooks();
     }
 
     private void setupColumns() {
         colJudul.setCellValueFactory(new PropertyValueFactory<>("judul"));
+        colStok.setCellValueFactory(new PropertyValueFactory<>("stok"));
+        colKategori.setCellValueFactory(new PropertyValueFactory<>("namaKategori")); 
+        colPenerbit.setCellValueFactory(new PropertyValueFactory<>("penerbit"));
+        colTahunTerbit.setCellValueFactory(new PropertyValueFactory<>("tahunTerbit"));
         colActiveId.setCellValueFactory(new PropertyValueFactory<>("peminjamanId"));
         colActiveJudul.setCellValueFactory(new PropertyValueFactory<>("judulBuku"));
         colActiveJatuhTempo.setCellValueFactory(new PropertyValueFactory<>("tanggalPengembalian"));
         colActiveStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         colHistId.setCellValueFactory(new PropertyValueFactory<>("peminjamanId"));
         colHistStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+    }
+
+    private void loadAvailableBooks() {
+        // Mengambil data dari DAO dan memasukkannya ke tabel
+        tableSearch.setItems(FXCollections.observableArrayList(bukuDAO.getAll()));
     }
 
     private void refreshAllData() {
@@ -100,6 +116,12 @@ public class UserDashboardController {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Pinjam buku ini?");
         Optional<ButtonType> result = confirm.showAndWait();
 
+        if (selected.getStok() <= 0) {
+        new Alert(Alert.AlertType.WARNING,
+            "Stok buku habis!"
+        ).show();
+        return;
+        }        
         if (result.isPresent() && result.get() == ButtonType.OK) {
             Peminjaman p = new Peminjaman();
             int userId = LoginController.getUserSession().getId();
@@ -124,44 +146,82 @@ public class UserDashboardController {
             p.setDenda(0.0);
 
             if (peminjamanDAO.save(p)) {
+                boolean stokUpdated = bukuDAO.updateStok(selected.getId(), -1);
+
+                if (!stokUpdated) {
+                    new Alert(Alert.AlertType.ERROR,
+                        "Stok buku habis!"
+                    ).show();
+                    return;
+                }
+
+                // 2️⃣ Insert detail peminjaman (jika ada tabel detail)
                 peminjamanDAO.insertDetail(
                     p.getPeminjamanId(),
                     selected.getId(),
                     1
                 );
+
                 refreshAllData();
             }
         }
     }
 
     @FXML
-    private void handleReturn() {
-        Peminjaman selected = tableActive.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            new Alert(Alert.AlertType.WARNING, "Pilih buku yang akan dikembalikan!")
-                .show();
-            return;
-        }
+private void handleReturn() {
+    Peminjaman selected = tableActive.getSelectionModel().getSelectedItem();
 
-        Alert confirm = new Alert(
-            Alert.AlertType.CONFIRMATION,
-            "Kembalikan buku \"" + selected.getJudulBuku() + "\" ?"
+    if (selected == null) {
+        new Alert(Alert.AlertType.WARNING,
+            "Pilih buku yang ingin dikembalikan!"
+        ).show();
+        return;
+    }
+
+    Alert confirm = new Alert(
+        Alert.AlertType.CONFIRMATION
+    );
+    confirm.setTitle("Konfirmasi Pengembalian");
+    confirm.setHeaderText("Kembalikan Buku");
+    confirm.setContentText(
+        "Apakah Anda yakin ingin mengembalikan buku:\n\n" +
+        selected.getJudulBuku() +
+        "\n\nJatuh tempo: " + selected.getTanggalPengembalian()
+    );
+
+    Optional<ButtonType> result = confirm.showAndWait();
+
+    if (result.isPresent() && result.get() == ButtonType.OK) {
+
+        boolean statusUpdated = peminjamanDAO.updateStatus(
+            selected.getPeminjamanId(),
+            "Dikembalikan"
         );
 
-        if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            peminjamanDAO.updateStatus(
-                selected.getPeminjamanId(),
-                "Dikembalikan"
-            );
+        if (statusUpdated) {
+            bukuDAO.updateStok(selected.getBukuId(), +1);
             refreshAllData();
+
+            new Alert(Alert.AlertType.INFORMATION,
+                "Buku berhasil dikembalikan."
+            ).show();
+        }
     }
 }
+
+
 
 
     @FXML
     private void handleSearch() {
         // Logika pencarian buku
-        System.out.println("Pencarian dijalankan...");
+        String query = searchField.getText().toLowerCase();
+        tableSearch.setItems(FXCollections.observableArrayList(
+            bukuDAO.getAll().stream()
+                .filter(b -> b.getJudul().toLowerCase().contains(query) || 
+                             b.getNamaKategori().toLowerCase().contains(query))
+                .collect(Collectors.toList())
+        ));
     }
 
     // Tambahkan ini ke dalam UserDashboardController.java

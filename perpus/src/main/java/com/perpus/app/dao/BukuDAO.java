@@ -98,18 +98,22 @@ public class BukuDAO {
     /* ===============================
        UPDATE STOK
        =============================== */
-    public boolean updateStok(int bukuId, int perubahan) {
-        String sql = "UPDATE buku SET stok = stok + ? WHERE bukuId = ?";
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, perubahan);
-            ps.setInt(2, bukuId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean updateStok(int bukuId, int delta) {
+    String sql = "UPDATE buku SET stok = stok + ? WHERE bukuId = ? AND stok + ? >= 0";
+    try (Connection conn = Database.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, delta);
+        ps.setInt(2, bukuId);
+        ps.setInt(3, delta);
+
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
     }
+}
+
 
     public boolean kurangiStok(int bukuId, int jumlah) {
         String sql = "UPDATE buku SET stok = stok - ? WHERE bukuId = ? AND stok >= ?";
@@ -139,4 +143,5 @@ public class BukuDAO {
         }
         return false;
     }
+    
 }
