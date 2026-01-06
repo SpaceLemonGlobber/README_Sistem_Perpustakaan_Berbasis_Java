@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class Database {
 
     private static final String URL =
-            "jdbc:mysql://localhost:3307/db_pbo";
+            "jdbc:mysql://26.193.144.186:3307/db_pbo";
     private static final String USER = "root";
     private static final String PASS = "pram4848";
 
