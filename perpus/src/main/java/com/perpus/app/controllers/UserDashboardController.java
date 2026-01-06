@@ -2,6 +2,7 @@ package com.perpus.app.controllers;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.perpus.app.dao.BukuDAO;
 import com.perpus.app.dao.PeminjamanDAO;
@@ -24,6 +25,11 @@ public class UserDashboardController {
     @FXML private TextField searchField;
     @FXML private TableView<Buku> tableSearch;
     @FXML private TableColumn<Buku, String> colJudul;
+    @FXML private TableColumn<Buku, Integer> colStok;
+    @FXML private TableColumn<Buku, String> colKategori;
+    @FXML private TableColumn<Buku, String> colPenerbit;
+    @FXML private TableColumn<Buku, Integer> colTahunTerbit;
+
 
     // Tabel Active & Return
     @FXML private TableView<Peminjaman> tableActive;
@@ -42,14 +48,24 @@ public class UserDashboardController {
     public void initialize() {
         setupColumns();
         refreshAllData();
+        loadAvailableBooks();
     }
 
     private void setupColumns() {
         colJudul.setCellValueFactory(new PropertyValueFactory<>("judul"));
+        colStok.setCellValueFactory(new PropertyValueFactory<>("stok"));
+        colKategori.setCellValueFactory(new PropertyValueFactory<>("namaKategori")); 
+        colPenerbit.setCellValueFactory(new PropertyValueFactory<>("penerbit"));
+        colTahunTerbit.setCellValueFactory(new PropertyValueFactory<>("tahunTerbit"));
         colActiveId.setCellValueFactory(new PropertyValueFactory<>("peminjamanId"));
         colActiveJudul.setCellValueFactory(new PropertyValueFactory<>("judulBuku"));
         colHistId.setCellValueFactory(new PropertyValueFactory<>("peminjamanId"));
         colHistStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+    }
+
+    private void loadAvailableBooks() {
+        // Mengambil data dari DAO dan memasukkannya ke tabel
+        tableSearch.setItems(FXCollections.observableArrayList(bukuDAO.getAll()));
     }
 
     private void refreshAllData() {
@@ -96,7 +112,13 @@ public class UserDashboardController {
     @FXML
     private void handleSearch() {
         // Logika pencarian buku
-        System.out.println("Pencarian dijalankan...");
+        String query = searchField.getText().toLowerCase();
+        tableSearch.setItems(FXCollections.observableArrayList(
+            bukuDAO.getAll().stream()
+                .filter(b -> b.getJudul().toLowerCase().contains(query) || 
+                             b.getNamaKategori().toLowerCase().contains(query))
+                .collect(Collectors.toList())
+        ));
     }
 
     // Tambahkan ini ke dalam UserDashboardController.java

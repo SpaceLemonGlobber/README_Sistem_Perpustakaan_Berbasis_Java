@@ -40,9 +40,13 @@ public class Buku {
     public int getKategoriId() { return kategoriID; } 
     public String getJudul() { return judul; }
     public String getPenerbit() { return penerbit; }
-    public int getTahunTerbit() { return tahun_terbit; } 
+    public int getTahunTerbit() {
+        return tahun_terbit;
+    }
     public int getStok() { return stok; }
-    public String getNamaKategori() { return namaKategori; }
+    public String getNamaKategori() {
+        return namaKategori; // Harus sinkron dengan PropertyValueFactory("namaKategori")
+    }
 
     // --- SETTER ---
     public void setBukuId(int bukuId) { this.bukuId = bukuId; }
