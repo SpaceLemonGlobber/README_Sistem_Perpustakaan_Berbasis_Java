@@ -62,6 +62,7 @@ public class DashboardController {
     @FXML private TableColumn<Kategori, Integer> colKategoriId;
     @FXML private TableColumn<Kategori, String> colNamaKategori;
     @FXML private TableColumn<Kategori, String> colDeskripsi;
+    @FXML private TableColumn<Kategori, Void> colAksiKategori;
 
     private final BukuDAO bukuDAO = new BukuDAO();
     private final AnggotaDAO anggotaDAO = new AnggotaDAO();
@@ -84,6 +85,38 @@ public class DashboardController {
         colPenerbit.setCellValueFactory(new PropertyValueFactory<>("penerbit"));
         colKategori.setCellValueFactory(new PropertyValueFactory<>("namaKategori"));
         colStok.setCellValueFactory(new PropertyValueFactory<>("stok"));
+
+        //kategori
+        colAksiKategori.setCellFactory(param -> new TableCell<>() {
+            private final Button btnEdit = new Button("Edit");
+            private final Button btnDelete = new Button("Hapus");
+            private final HBox pane = new HBox(5, btnEdit, btnDelete);
+
+            {
+                // Styling agar sama dengan tabel Buku
+                btnEdit.setStyle("-fx-background-color: #f1c40f; -fx-text-fill: white; -fx-cursor: hand;");
+                btnDelete.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
+                
+                // Event tombol Hapus
+                btnDelete.setOnAction(e -> {
+                    Kategori k = getTableRow().getItem();
+                    if (k != null) handleDeleteKategori(k);
+                });
+
+                // Event tombol Edit
+                btnEdit.setOnAction(e -> {
+                    Kategori k = getTableRow().getItem();
+                    if (k != null) handleEditKategori(k);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : pane);
+            }
+        });
+
 
         // Setup Tombol Edit & Hapus di Kolom Aksi
         colAksi.setCellFactory(param -> new TableCell<>() {
@@ -123,7 +156,7 @@ public class DashboardController {
         colTransBuku.setCellValueFactory(new PropertyValueFactory<>("judulBuku"));
         colTransStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        colKategoriId.setCellValueFactory(new PropertyValueFactory<>("kategoriID"));
+        colKategoriId.setCellValueFactory(new PropertyValueFactory<>("kategoriId"));
         colNamaKategori.setCellValueFactory(new PropertyValueFactory<>("nama_kategori"));
         colDeskripsi.setCellValueFactory(new PropertyValueFactory<>("deskripsi"));
     }
@@ -161,6 +194,7 @@ public class DashboardController {
             }
         } catch (IOException e) { e.printStackTrace(); }
     }
+
 
     private void showEditBuku(Buku buku) {
         try {
@@ -222,6 +256,126 @@ public class DashboardController {
             stage.show();
         } catch (IOException e) { e.printStackTrace(); }
     }
+
+        /* ===============================
+        LOGIKA CRUD KATEGORI
+    =============================== */
+
+    @FXML
+    private void handleTambahKategori() {
+        // 1. Membuat Dialog Input menggunakan TextInputDialog atau Custom Dialog
+        javafx.scene.control.Dialog<Kategori> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Tambah Kategori Baru");
+        dialog.setHeaderText("Masukkan detail kategori master");
+
+        // Set Button Simpan dan Batal
+        ButtonType simpanButtonType = new ButtonType("Simpan", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(simpanButtonType, ButtonType.CANCEL);
+
+        // Layout input (GridPane)
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+
+        TextField namaField = new TextField();
+        namaField.setPromptText("Nama Kategori");
+        javafx.scene.control.TextArea deskripsiArea = new javafx.scene.control.TextArea();
+        deskripsiArea.setPromptText("Deskripsi singkat");
+        deskripsiArea.setPrefRowCount(3);
+
+        grid.add(new Label("Nama Kategori:"), 0, 0);
+        grid.add(namaField, 1, 0);
+        grid.add(new Label("Deskripsi:"), 0, 1);
+        grid.add(deskripsiArea, 1, 1);
+        dialog.getDialogPane().setContent(grid);
+
+        // 2. Convert input ke objek Kategori saat tombol simpan diklik
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == simpanButtonType) {
+                // Menggunakan Constructor INSERT (String nama, String deskripsi)
+                return new Kategori(namaField.getText(), deskripsiArea.getText());
+            }
+            return null;
+        });
+
+        // 3. Tampilkan Dialog dan proses simpan
+        dialog.showAndWait().ifPresent(kategoriBaru -> {
+            if (kategoriBaru.getNama_kategori().isEmpty()) {
+                showError("Nama kategori tidak boleh kosong!");
+                return;
+            }
+
+            // Pastikan KategoriDAO sudah ada method save()
+            if (kategoriDAO.save(kategoriBaru)) {
+                refreshAllData(); // Refresh semua tabel termasuk kategori
+                Alert info = new Alert(Alert.AlertType.INFORMATION, "Kategori berhasil ditambahkan!");
+                info.showAndWait();
+            } else {
+                showError("Gagal menyimpan kategori ke database.");
+            }
+        });
+    }
+
+
+    private void handleDeleteKategori(Kategori k) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Hapus kategori: " + k.getNama_kategori() + "?");
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                // Memanggil method delete di KategoriDAO
+                if (kategoriDAO.delete(k.getKategoriId())) {
+                    refreshAllData(); // Refresh tampilan tabel
+                } else {
+                    showError("Gagal menghapus! Kategori ini mungkin masih digunakan oleh data buku.");
+                }
+            }
+        });
+    }
+
+    private void handleEditKategori(Kategori kategoriLama) {
+        javafx.scene.control.Dialog<Kategori> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Edit Kategori");
+        dialog.setHeaderText("Ubah data kategori: " + kategoriLama.getNama_kategori());
+
+        ButtonType simpanButtonType = new ButtonType("Simpan Perubahan", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(simpanButtonType, ButtonType.CANCEL);
+
+        TextField namaField = new TextField(kategoriLama.getNama_kategori());
+        javafx.scene.control.TextArea deskripsiArea = new javafx.scene.control.TextArea(kategoriLama.getDeskripsi());
+        deskripsiArea.setPrefRowCount(3);
+
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(10); grid.setVgap(10);
+        grid.add(new Label("Nama Kategori:"), 0, 0);
+        grid.add(namaField, 1, 0);
+        grid.add(new Label("Deskripsi:"), 0, 1);
+        grid.add(deskripsiArea, 1, 1);
+        dialog.getDialogPane().setContent(grid);
+
+        
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == simpanButtonType) {
+                // Tetap bawa ID yang lama agar UPDATE tahu baris mana yang diubah
+                return new Kategori(kategoriLama.getKategoriId(), namaField.getText(), deskripsiArea.getText());
+            }
+            return null;
+        });
+
+        //Proses Update
+        dialog.showAndWait().ifPresent(kategoriUpdate -> {
+            if (kategoriUpdate.getNama_kategori().isEmpty()) {
+                showError("Nama kategori tidak boleh kosong!");
+            } else if (kategoriDAO.update(kategoriUpdate)) {
+                refreshAllData(); // Refresh tabel agar data baru muncul
+                Alert info = new Alert(Alert.AlertType.INFORMATION, "Kategori berhasil diperbarui!");
+                info.showAndWait();
+            } else {
+                showError("Gagal memperbarui kategori di database.");
+            }
+        });
+    }
+
+
+
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
