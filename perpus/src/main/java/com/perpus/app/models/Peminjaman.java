@@ -12,34 +12,52 @@ public class Peminjaman {
     private String status;
     private double denda;
 
-    // A. Constructor Kosong: Wajib agar 'new Peminjaman()' di DAO tidak error
+    // Field tambahan untuk kebutuhan TableView (agar nama anggota/judul muncul di tabel)
+    private String namaAnggota;
+    private String judulBuku;
+
     public Peminjaman() {}
 
-    // B. Constructor (int, int): Wajib agar proses pinjamBuku tidak error
     public Peminjaman(int anggotaId, int bukuId) {
         this.anggotaId = anggotaId;
         this.bukuId = bukuId;
     }
 
-    // --- GETTER ---
-    public int getPeminjamanId() { return peminjamanId; }
-    public int getAnggotaId() { return anggotaId; } 
-    public int getAdminId() { return adminId; }
-    public int getBukuId() { return bukuId; }
-    public LocalDate getTanggalPinjam() { return tanggalPinjam; }
-    public LocalDate getTanggalKembali() { return tanggalKembali; }
-    public String getStatus() { return status; }
-    public double getDenda() { return denda; }
+    // --- ALIAS UNTUK MENGATASI COMPILATION ERROR ---
+    // Error: "cannot find symbol getId()" di PeminjamanController
+    public int getId() { return peminjamanId; } 
 
-    // --- SETTER (Lengkap sesuai kebutuhan DAO) ---
-    public void setPeminjamanId(int peminjamanId) { this.peminjamanId = peminjamanId; }
-    public void setAnggotaId(int anggotaId) { this.anggotaId = anggotaId; }
+    public int getAdminId() { return adminId; }
     public void setAdminId(int adminId) { this.adminId = adminId; }
-    public void setBukuId(int bukuId) { this.bukuId = bukuId; }
-    public void setTanggalPinjam(LocalDate tanggalPinjam) { this.tanggalPinjam = tanggalPinjam; }
+
+    // Error: "cannot find symbol setTanggalPeminjaman()" di UserDashboardController
+    public void setTanggalPeminjaman(LocalDate date) { this.tanggalPinjam = date; }
+    public LocalDate getTanggalPeminjaman() { return tanggalPinjam; }
+
+    // Error: "cannot find symbol setTanggalPengembalian()" di UserDashboardController
+    public void setTanggalPengembalian(LocalDate date) { this.tanggalKembali = date; }
+    public LocalDate getTanggalPengembalian() { return tanggalKembali; }
+
+    // --- GETTER & SETTER STANDAR ---
+    public int getPeminjamanId() { return peminjamanId; }
+    public void setPeminjamanId(int peminjamanId) { this.peminjamanId = peminjamanId; }
     
-    // Perbaikan Error: Method ini yang sebelumnya hilang di screenshot kamu
-    public void setTanggalKembali(LocalDate tanggalKembali) { this.tanggalKembali = tanggalKembali; }
+    public int getAnggotaId() { return anggotaId; } 
+    public void setAnggotaId(int anggotaId) { this.anggotaId = anggotaId; }
+    
+    public int getBukuId() { return bukuId; }
+    public void setBukuId(int bukuId) { this.bukuId = bukuId; }
+
+    public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public double getDenda() { return denda; }
     public void setDenda(double denda) { this.denda = denda; }
+
+    // Getter & Setter untuk Nama/Judul (Penting untuk tampilan Tabel)
+    public String getNamaAnggota() { return namaAnggota; }
+    public void setNamaAnggota(String namaAnggota) { this.namaAnggota = namaAnggota; }
+    
+    public String getJudulBuku() { return judulBuku; }
+    public void setJudulBuku(String judulBuku) { this.judulBuku = judulBuku; }
 }

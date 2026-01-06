@@ -3,9 +3,10 @@ package com.perpus.app.models;
 public class Buku {
 
     private int bukuId;
-    private int kategoriID; // Mengikuti nama kolom di database
+    private int kategoriID; 
     private String judul;
     private String penerbit;
+    private String namaKategori;
     private int tahun_terbit; 
     private int stok;
 
@@ -30,28 +31,28 @@ public class Buku {
         this.stok = stok;
     }
 
+    public int getId() { 
+        return bukuId; 
+    }
+
     // --- GETTER ---
     public int getBukuId() { return bukuId; }
-    
-    // Sesuaikan dengan panggilan di BukuDAO (image_03ddb9.png)
     public int getKategoriId() { return kategoriID; } 
-    
     public String getJudul() { return judul; }
     public String getPenerbit() { return penerbit; }
     public int getTahunTerbit() { return tahun_terbit; } 
     public int getStok() { return stok; }
+    public String getNamaKategori() { return namaKategori; }
 
     // --- SETTER ---
     public void setBukuId(int bukuId) { this.bukuId = bukuId; }
-    
-    // Tambahkan setter yang konsisten
     public void setKategoriId(int kategoriID) { this.kategoriID = kategoriID; }
     public void setKategoriID(int kategoriID) { this.kategoriID = kategoriID; }
-    
     public void setJudul(String judul) { this.judul = judul; }
     public void setPenerbit(String penerbit) { this.penerbit = penerbit; }
     public void setTahunTerbit(int tahun_terbit) { this.tahun_terbit = tahun_terbit; }
     public void setStok(int stok) { this.stok = stok; }
+    public void setNamaKategori(String namaKategori) { this.namaKategori = namaKategori; }
 
     @Override
     public String toString() {

@@ -16,87 +16,59 @@ public class BukuDAO {
        GET ALL BUKU
        =============================== */
     public List<Buku> getAll() {
-        List<Buku> list = new ArrayList<>();
-        // Perbaikan: Menambahkan kategoriID ke dalam Query
-        String sql = "SELECT bukuId, kategoriID, judul, penerbit, tahun_terbit, stok FROM buku";
+    List<Buku> list = new ArrayList<>();
+    // Gunakan JOIN untuk mengambil nama_kategori dari tabel kategori
+    String sql = "SELECT b.*, k.nama_kategori " +
+                 "FROM buku b " +
+                 "LEFT JOIN kategori k ON b.kategoriID = k.kategoriID";
 
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+    try (Connection conn = Database.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                Buku buku = new Buku(
-                    rs.getInt("bukuId"),
-                    rs.getInt("kategoriID"), // Kolom ini sekarang sudah ada di SELECT
-                    rs.getString("judul"),
-                    rs.getString("penerbit"),
-                    rs.getInt("tahun_terbit"),
-                    rs.getInt("stok")
-                );
-                list.add(buku);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        while (rs.next()) {
+            Buku buku = new Buku(
+                rs.getInt("bukuId"),
+                rs.getInt("kategoriID"),
+                rs.getString("judul"),
+                rs.getString("penerbit"),
+                rs.getInt("tahun_terbit"),
+                rs.getInt("stok")
+            );
+            // SET NAMA KATEGORI DARI HASIL JOIN
+            buku.setNamaKategori(rs.getString("nama_kategori")); 
+            list.add(buku);
         }
-        return list;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
-
-    /* ===============================
-       GET BUKU BY ID
-       =============================== */
-    public Buku getById(int id) {
-        // Perbaikan: Menambahkan kategoriID ke dalam Query
-        String sql = "SELECT bukuId, kategoriID, judul, penerbit, tahun_terbit, stok " +
-                     "FROM buku WHERE bukuId = ?";
-
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return new Buku(
-                    rs.getInt("bukuId"),
-                    rs.getInt("kategoriID"), 
-                    rs.getString("judul"),
-                    rs.getString("penerbit"),
-                    rs.getInt("tahun_terbit"),
-                    rs.getInt("stok")
-                );
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    return list;
+}
 
     /* ===============================
        INSERT BUKU
        =============================== */
     public boolean insert(Buku buku) {
-        // Perbaikan: Menambahkan kategoriID ke INSERT agar data kategori tidak NULL
-        String sql = "INSERT INTO buku (kategoriID, judul, penerbit, tahun_terbit, stok) " +
-                     "VALUES (?, ?, ?, ?, ?)";
+    // Urutan kolom di DB: kategoriID, judul, penerbit, tahun_terbit, stok
+    String sql = "INSERT INTO buku (kategoriID, judul, penerbit, tahun_terbit, stok) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = Database.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (Connection conn = Database.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, buku.getKategoriId());
-            ps.setString(2, buku.getJudul());
-            ps.setString(3, buku.getPenerbit());
-            ps.setInt(4, buku.getTahunTerbit());
-            ps.setInt(5, buku.getStok());
+        // SET PARAMETER SESUAI URUTAN QUERY DI ATAS
+        ps.setInt(1, buku.getKategoriId());  // Pastikan ID ini ada di tabel kategori
+        ps.setString(2, buku.getJudul());
+        ps.setString(3, buku.getPenerbit());
+        ps.setInt(4, buku.getTahunTerbit());
+        ps.setInt(5, buku.getStok());
 
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        // Lihat pesan error ini di terminal untuk tahu alasan penolakan DB
+        System.err.println("Gagal Simpan Buku: " + e.getMessage());
         return false;
     }
+}
 
     /* ===============================
        UPDATE DATA BUKU
