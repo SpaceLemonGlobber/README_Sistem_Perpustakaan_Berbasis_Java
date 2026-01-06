@@ -12,6 +12,50 @@ import com.perpus.config.Database;
 
 public class KategoriDAO {
 
+    public boolean save(Kategori kategori) {
+        String sql = "INSERT INTO kategori (nama_kategori, deskripsi) VALUES (?, ?)";
+        try (java.sql.Connection conn = com.perpus.config.Database.getConnection();
+            java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, kategori.getNama_kategori());
+            ps.setString(2, kategori.getDeskripsi());
+            
+            return ps.executeUpdate() > 0;
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error save kategori: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean delete(int id) {
+        String sql = "DELETE FROM kategori WHERE kategoriID = ?";
+        try (Connection conn = com.perpus.config.Database.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error hapus kategori: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean update(Kategori kategori) {
+        String sql = "UPDATE kategori SET nama_kategori = ?, deskripsi = ? WHERE kategoriID = ?";
+        try (Connection conn = com.perpus.config.Database.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, kategori.getNama_kategori());
+            ps.setString(2, kategori.getDeskripsi());
+            ps.setInt(3, kategori.getKategoriId());
+            
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error update kategori: " + e.getMessage());
+            return false;
+        }
+    }
+
+
     public List<Kategori> getAll() {
         List<Kategori> list = new ArrayList<>();
         // Query langsung ke tabel master kategori

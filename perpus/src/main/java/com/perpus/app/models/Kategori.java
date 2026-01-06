@@ -23,7 +23,7 @@ public class Kategori {
         return kategoriId;
     }
 
-    public String getnama_kategori() {
+    public String getNama_kategori() {
         return nama_kategori;
     }
 
