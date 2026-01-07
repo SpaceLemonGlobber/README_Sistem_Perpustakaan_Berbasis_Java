@@ -16,7 +16,6 @@ public class DetailKategoriDAO {
 
     public List<DetailKategori> getAll() {
         List<DetailKategori> list = new ArrayList<>();
-        // Query JOIN 3 tabel untuk mengambil info lengkap sesuai Model kamu
         String sql = "SELECT dk.kategoriID, k.nama_kategori, k.deskripsi, " +
                      "dk.bukuID, b.judul, b.penerbit, b.tahun_terbit, b.stok " +
                      "FROM detailkategori dk " +
@@ -28,15 +27,12 @@ public class DetailKategoriDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                // 1. Buat objek Kategori dari hasil database
                 Kategori kategori = new Kategori(
                     rs.getInt("kategoriID"),
                     rs.getString("nama_kategori"),
                     rs.getString("deskripsi")
                 );
 
-                // 2. Buat objek Buku (sesuai constructor Buku yang kita fix tadi)
-                // Karena kolom di tabel detailkategori adalah bukuID (D kapital), gunakan itu
                 Buku buku = new Buku(
                     rs.getInt("bukuID"), 
                     rs.getInt("kategoriID"),
@@ -46,7 +42,6 @@ public class DetailKategoriDAO {
                     rs.getInt("stok")
                 );
 
-                // 3. Masukkan ke Model DetailKategori
                 list.add(new DetailKategori(kategori, buku));
             }
         } catch (SQLException e) {

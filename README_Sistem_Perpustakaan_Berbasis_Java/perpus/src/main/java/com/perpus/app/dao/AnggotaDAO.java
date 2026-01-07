@@ -15,7 +15,6 @@ public class AnggotaDAO {
 
     public List<Anggota> getAll() {
         List<Anggota> list = new ArrayList<>();
-        // Query JOIN sesuai screenshot database Anda
         String sql = "SELECT u.userId, u.username, u.password, a.anggotaId, a.nama, a.email, a.no_telp " +
                      "FROM user u JOIN anggota a ON u.userId = a.userId";
 
@@ -24,7 +23,6 @@ public class AnggotaDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                // Pastikan Constructor di model Anggota urutannya sesuai ini
                 Anggota agt = new Anggota(
                     rs.getInt("userId"),
                     rs.getString("username"),
@@ -49,20 +47,17 @@ public class AnggotaDAO {
         Connection conn = null;
         try {
             conn = Database.getConnection();
-            conn.setAutoCommit(false); // Mulai Transaksi
+            conn.setAutoCommit(false); 
 
-            // 1. Simpan ke tabel user
             PreparedStatement psUser = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS);
             psUser.setString(1, a.getUsername());
             psUser.setString(2, a.getPassword());
             psUser.executeUpdate();
 
-            // Ambil ID yang baru saja digenerate
             ResultSet rs = psUser.getGeneratedKeys();
             if (rs.next()) {
                 int generatedUserId = rs.getInt(1);
 
-                // 2. Simpan ke tabel anggota menggunakan generatedUserId
                 PreparedStatement psAnggota = conn.prepareStatement(sqlAnggota);
                 psAnggota.setInt(1, generatedUserId);
                 psAnggota.setString(2, a.getNama());
@@ -71,7 +66,7 @@ public class AnggotaDAO {
                 psAnggota.executeUpdate();
             }
 
-            conn.commit(); // Simpan permanen
+            conn.commit();
             return true;
         } catch (SQLException e) {
             if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
@@ -89,14 +84,12 @@ public class AnggotaDAO {
             conn = Database.getConnection();
             conn.setAutoCommit(false);
 
-            // Update tabel user
             PreparedStatement psUser = conn.prepareStatement(sqlUser);
             psUser.setString(1, a.getUsername());
             psUser.setString(2, a.getPassword());
             psUser.setInt(3, a.getUserId());
             psUser.executeUpdate();
 
-            // Update tabel anggota
             PreparedStatement psAnggota = conn.prepareStatement(sqlAnggota);
             psAnggota.setString(1, a.getNama());
             psAnggota.setString(2, a.getEmail());

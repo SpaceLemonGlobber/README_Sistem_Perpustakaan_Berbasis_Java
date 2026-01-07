@@ -12,12 +12,8 @@ import com.perpus.config.Database;
 
 public class BukuDAO {
 
-    /* ===============================
-       GET ALL BUKU
-       =============================== */
     public List<Buku> getAll() {
     List<Buku> list = new ArrayList<>();
-    // Gunakan JOIN untuk mengambil nama_kategori dari tabel kategori
     String sql = "SELECT b.*, k.nama_kategori " +
                  "FROM buku b " +
                  "LEFT JOIN kategori k ON b.kategoriID = k.kategoriID";
@@ -35,7 +31,6 @@ public class BukuDAO {
                 rs.getInt("tahun_terbit"),
                 rs.getInt("stok")
             );
-            // SET NAMA KATEGORI DARI HASIL JOIN
             buku.setNamaKategori(rs.getString("nama_kategori")); 
             list.add(buku);
         }
@@ -45,18 +40,13 @@ public class BukuDAO {
     return list;
 }
 
-    /* ===============================
-       INSERT BUKU
-       =============================== */
     public boolean insert(Buku buku) {
-    // Urutan kolom di DB: kategoriID, judul, penerbit, tahun_terbit, stok
     String sql = "INSERT INTO buku (kategoriID, judul, penerbit, tahun_terbit, stok) VALUES (?, ?, ?, ?, ?)";
 
     try (Connection conn = Database.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        // SET PARAMETER SESUAI URUTAN QUERY DI ATAS
-        ps.setInt(1, buku.getKategoriId());  // Pastikan ID ini ada di tabel kategori
+        ps.setInt(1, buku.getKategoriId()); 
         ps.setString(2, buku.getJudul());
         ps.setString(3, buku.getPenerbit());
         ps.setInt(4, buku.getTahunTerbit());
@@ -64,15 +54,11 @@ public class BukuDAO {
 
         return ps.executeUpdate() > 0;
     } catch (SQLException e) {
-        // Lihat pesan error ini di terminal untuk tahu alasan penolakan DB
         System.err.println("Gagal Simpan Buku: " + e.getMessage());
         return false;
     }
 }
 
-    /* ===============================
-       UPDATE DATA BUKU
-       =============================== */
     public boolean update(Buku buku) {
         String sql = "UPDATE buku SET kategoriID = ?, judul = ?, penerbit = ?, tahun_terbit = ?, stok = ? " +
                      "WHERE bukuId = ?";
@@ -95,9 +81,6 @@ public class BukuDAO {
         return false;
     }
 
-    /* ===============================
-       UPDATE STOK
-       =============================== */
     public boolean updateStok(int bukuId, int perubahan) {
         String sql = "UPDATE buku SET stok = stok + ? WHERE bukuId = ?";
         try (Connection conn = Database.getConnection();
@@ -125,9 +108,7 @@ public class BukuDAO {
         }
     }
 
-    /* ===============================
-       DELETE BUKU
-       =============================== */
+
     public boolean delete(int bukuId) {
         String sql = "DELETE FROM buku WHERE bukuId = ?";
         try (Connection conn = Database.getConnection();
@@ -140,7 +121,6 @@ public class BukuDAO {
         return false;
     }
 
-    // Tambahkan di BukuDAO.java
     public Buku getById(int id) {
     String sql = "SELECT * FROM buku WHERE bukuId = ?";
     try (Connection conn = Database.getConnection();

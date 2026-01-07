@@ -11,7 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType; // Tambahkan import ini
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -22,7 +22,7 @@ public class AnggotaController {
     @FXML private TableView<Anggota> anggotaTable;
     @FXML private TableColumn<Anggota, Integer> colId;
     @FXML private TableColumn<Anggota, String> colNama;
-    @FXML private TableColumn<Anggota, String> colEmail; // Sesuaikan dengan Model Anggota
+    @FXML private TableColumn<Anggota, String> colEmail; 
     @FXML private TableColumn<Anggota, String> colTelepon;
     @FXML private TextField searchField;
 
@@ -31,11 +31,9 @@ public class AnggotaController {
 
     @FXML
     public void initialize() {
-        // "id" memanggil getId() yang sudah kita buat sebagai alias di model
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNama.setCellValueFactory(new PropertyValueFactory<>("nama"));
-        
-        // Sesuaikan nama property dengan Getter di model (getEmail & getNo_telp)
+
         colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
         colTelepon.setCellValueFactory(new PropertyValueFactory<>("no_telp"));
 
@@ -53,7 +51,6 @@ public class AnggotaController {
         if (query == null || query.isEmpty()) {
             refreshTable();
         } else {
-            // PERBAIKAN: Gunakan collect(Collectors.toList()) untuk kompatibilitas Java 8/11
             List<Anggota> hasil = anggotaDAO.getAll().stream()
                 .filter(a -> a.getNama().toLowerCase().contains(query.toLowerCase()))
                 .collect(Collectors.toList()); 
@@ -76,7 +73,6 @@ public class AnggotaController {
         
         Optional<ButtonType> res = alert.showAndWait();
         if (res.isPresent() && res.get() == ButtonType.OK) {
-            // Pastikan method delete(int id) sudah ada di AnggotaDAO
             if (anggotaDAO.delete(selected.getId())) {
                 refreshTable();
                 showAlert("Sukses", "Data anggota berhasil dihapus.");
@@ -94,6 +90,6 @@ public class AnggotaController {
         alert.showAndWait();
     }
 
-    @FXML private void showAddDialog() { /* Implementasi Form Anggota */ }
-    @FXML private void handleEdit() { /* Implementasi Form Anggota */ }
+    @FXML private void showAddDialog() { }
+    @FXML private void handleEdit() { }
 }

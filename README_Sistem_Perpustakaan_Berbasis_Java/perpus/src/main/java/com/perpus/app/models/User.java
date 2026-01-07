@@ -17,8 +17,6 @@ public abstract class User {
         this.nama = nama;
     }
 
-    // --- PERBAIKAN UTAMA ---
-    // Tambahkan method ini agar pemanggilan getId() di Controller tidak error
     public int getId() { 
         return userId; 
     }

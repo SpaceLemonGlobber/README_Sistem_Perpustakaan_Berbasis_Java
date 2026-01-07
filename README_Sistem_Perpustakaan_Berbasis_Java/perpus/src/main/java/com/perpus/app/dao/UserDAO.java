@@ -13,7 +13,6 @@ import com.perpus.config.Database;
 public class UserDAO {
 
     public User login(String username, String password) {
-        // Gunakan userId sesuai image_0225ee.png
         String sql = "SELECT userId, username, password, role FROM user WHERE username = ? AND password = ?";
 
         try (Connection conn = Database.getConnection();
@@ -27,8 +26,6 @@ public class UserDAO {
                 int id = rs.getInt("userId");
                 String role = rs.getString("role");
                 String pass = rs.getString("password");
-                // Karena di tabel user image_0225ee.png tidak ada kolom 'nama', 
-                // kita gunakan 'username' sebagai 'nama' untuk sementara.
                 String nama = rs.getString("username"); 
 
                 User u;

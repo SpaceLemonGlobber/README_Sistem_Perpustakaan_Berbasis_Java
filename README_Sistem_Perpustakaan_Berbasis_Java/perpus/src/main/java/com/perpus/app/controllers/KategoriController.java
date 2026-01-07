@@ -22,10 +22,8 @@ import javafx.scene.layout.GridPane;
 
 public class KategoriController {
 
-    // Sesuaikan fx:id TableView kamu di Scene Builder (contoh: tableKategori)
     @FXML private TableView<Kategori> tableKategori; 
-    
-    // fx:id kolom yang sudah kamu buat
+
     @FXML private TableColumn<Kategori, Integer> colKategoriId;
     @FXML private TableColumn<Kategori, String> colNamaKategori;
     @FXML private TableColumn<Kategori, String> colDeskripsi;
@@ -34,8 +32,6 @@ public class KategoriController {
 
     @FXML
     public void initialize() {
-        // Mapping kolom ke property di Kategori.java
-        // Note: Nama di dalam petik harus sesuai dengan nama variabel di model/getter
         colKategoriId.setCellValueFactory(new PropertyValueFactory<>("kategoriId"));
         colNamaKategori.setCellValueFactory(new PropertyValueFactory<>("nama_kategori"));
         colDeskripsi.setCellValueFactory(new PropertyValueFactory<>("deskripsi"));
@@ -51,7 +47,6 @@ public class KategoriController {
 
     @FXML
     private void handleTambahKategori() {
-        // Membuat Dialog Pop-up Sederhana
         Dialog<Kategori> dialog = new Dialog<>();
         dialog.setTitle("Tambah Kategori");
         dialog.setHeaderText("Masukkan Data Kategori Baru");
@@ -76,7 +71,6 @@ public class KategoriController {
 
         dialog.getDialogPane().setContent(grid);
 
-        // Mengambil hasil input saat tombol simpan ditekan
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == simpanButtonType) {
                 return new Kategori(namaField.getText(), deskripsiArea.getText());
@@ -87,7 +81,7 @@ public class KategoriController {
         Optional<Kategori> result = dialog.showAndWait();
         result.ifPresent(kategori -> {
             if (kategoriDAO.save(kategori)) {
-                loadData(); // Refresh tabel setelah simpan berhasil
+                loadData();
                 System.out.println("Data berhasil disimpan!");
             } else {
                 System.out.println("Gagal menyimpan data.");

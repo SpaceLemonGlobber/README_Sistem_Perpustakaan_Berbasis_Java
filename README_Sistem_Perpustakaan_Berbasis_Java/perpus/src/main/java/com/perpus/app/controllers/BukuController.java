@@ -17,7 +17,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView; // Tambahkan import ini
+import javafx.scene.control.TableView; 
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
@@ -42,7 +42,6 @@ public class BukuController {
 
     @FXML
     public void initialize() {
-        // "id" memanggil getId() yang sudah kita buat sebagai alias di model Buku
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colJudul.setCellValueFactory(new PropertyValueFactory<>("judul"));
        
@@ -63,7 +62,6 @@ public class BukuController {
         if (query == null || query.isEmpty()) {
             refreshTable();
         } else {
-            // PERBAIKAN: Gunakan .collect(Collectors.toList()) agar kompatibel dengan Java 8/11
             List<Buku> hasilCari = bukuDAO.getAll().stream()
                 .filter(b -> b.getJudul().toLowerCase().contains(query.toLowerCase()))
                 .collect(Collectors.toList());
@@ -101,7 +99,6 @@ public class BukuController {
         
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            // Memanggil delete(int id) yang ada di BukuDAO
             if (bukuDAO.delete(selected.getId())) {
                 refreshTable();
             } else {

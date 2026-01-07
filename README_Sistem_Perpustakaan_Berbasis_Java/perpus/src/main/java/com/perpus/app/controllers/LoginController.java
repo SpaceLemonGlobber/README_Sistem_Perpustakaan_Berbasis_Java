@@ -22,9 +22,8 @@ public class LoginController {
     @FXML private Label statusLabel;
 
     private final UserDAO userDAO = new UserDAO();
-    private static User userSession; // Menyimpan data user yang sedang login
+    private static User userSession;
 
-    // Method Penting: Harus ada agar DashboardController tidak error
     public static User getUserSession() {
         return userSession;
     }
@@ -37,7 +36,6 @@ public class LoginController {
 
         if (userSession != null) {
             try {
-                // Tentukan alur: ADMIN ke MainView, USER ke UserDashboard
                 String fxml = userSession.getRole().equalsIgnoreCase("ADMIN") ? "MainView.fxml" : "UserDashboard.fxml";
                 
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/perpus/" + fxml));

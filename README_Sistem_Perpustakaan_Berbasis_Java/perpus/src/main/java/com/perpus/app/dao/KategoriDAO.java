@@ -58,7 +58,6 @@ public class KategoriDAO {
 
     public List<Kategori> getAll() {
         List<Kategori> list = new ArrayList<>();
-        // Query langsung ke tabel master kategori
         String sql = "SELECT kategoriID, nama_kategori, deskripsi FROM kategori";
 
         try (Connection conn = Database.getConnection();

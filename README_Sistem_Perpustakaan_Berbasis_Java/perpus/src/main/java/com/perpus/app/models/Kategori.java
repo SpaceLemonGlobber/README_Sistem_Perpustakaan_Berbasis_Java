@@ -6,14 +6,12 @@ public class Kategori {
     private final String nama_kategori;
     private final String deskripsi;
 
-    // Constructor SELECT
     public Kategori(int kategoriId, String nama_kategori, String deskripsi) {
         this.kategoriId = kategoriId;
         this.nama_kategori = nama_kategori;
         this.deskripsi = deskripsi;
     }
 
-    // Constructor INSERT
     public Kategori(String nama_kategori, String deskripsi) {
         this.nama_kategori = nama_kategori;
         this.deskripsi = deskripsi;

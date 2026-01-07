@@ -26,27 +26,18 @@ public class BukuFormController {
     private boolean isSaveClicked = false;
     private final KategoriDAO kategoriDAO = new KategoriDAO();
 
-    /**
-     * Inisialisasi otomatis saat FXML dimuat.
-     * Mengambil daftar kategori dari database untuk ComboBox.
-     */
     @FXML
     public void initialize() {
         try {
             ObservableList<Kategori> listKategori = FXCollections.observableArrayList(kategoriDAO.getAll());
             comboKategori.setItems(listKategori);
             
-            // Memberikan prompt agar user tahu harus memilih kategori
             comboKategori.setPromptText("-- Pilih Kategori --");
         } catch (Exception e) {
             System.err.println("Gagal memuat kategori: " + e.getMessage());
         }
     }
 
-    /**
-     * Menyiapkan data buku jika dalam mode EDIT.
-     * Jika buku != null, field akan terisi otomatis.
-     */
     public void setBuku(Buku buku) {
         this.buku = buku;
         if (buku != null) {
@@ -56,7 +47,6 @@ public class BukuFormController {
             txtTahun.setText(String.valueOf(buku.getTahunTerbit()));
             txtStok.setText(String.valueOf(buku.getStok()));
 
-            // Sinkronisasi ComboBox dengan kategori buku yang sedang diedit
             for (Kategori k : comboKategori.getItems()) {
                 if (k.getKategoriId() == buku.getKategoriId()) {
                     comboKategori.setValue(k);
@@ -66,27 +56,20 @@ public class BukuFormController {
         }
     }
 
-    /**
-     * Menangani aksi tombol Simpan.
-     */
     @FXML
 private void handleSave() {
     if (isInputValid()) {
-        // AMBIL ID KATEGORI YANG VALID DARI COMBOBOX
         int selectedKategoriId = comboKategori.getValue().getKategoriId();
 
         if (buku == null) {
-            // GUNAKAN CONSTRUCTOR INSERT (5 PARAMETER): 
-            // 1. kategoriID, 2. judul, 3. penerbit, 4. tahun, 5. stok
             buku = new Buku(
-                selectedKategoriId, // Jangan gunakan angka 0
+                selectedKategoriId, 
                 txtJudul.getText(),
                 txtPenerbit.getText(),
                 Integer.parseInt(txtTahun.getText()),
                 Integer.parseInt(txtStok.getText())
             );
         } else {
-            // Mode Edit
             buku.setKategoriId(selectedKategoriId);
             buku.setJudul(txtJudul.getText());
             buku.setPenerbit(txtPenerbit.getText());
@@ -99,17 +82,11 @@ private void handleSave() {
     }
 }
 
-    /**
-     * Menangani aksi tombol Batal.
-     */
     @FXML
     private void handleCancel() {
         closeWindow();
     }
 
-    /**
-     * Validasi input sederhana sebelum menyimpan ke database.
-     */
     private boolean isInputValid() {
         String errorMessage = "";
 

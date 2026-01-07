@@ -12,7 +12,6 @@ public class Buku {
 
     public Buku() {}
 
-    // Constructor untuk SELECT
     public Buku(int bukuId, int kategoriID, String judul, String penerbit, int tahun_terbit, int stok) {
         this.bukuId = bukuId;
         this.kategoriID = kategoriID;
@@ -22,7 +21,6 @@ public class Buku {
         this.stok = stok;
     }
 
-    // Constructor untuk INSERT 
     public Buku(int kategoriID, String judul, String penerbit, int tahun_terbit, int stok) {
         this.kategoriID = kategoriID;
         this.judul = judul;
@@ -35,7 +33,6 @@ public class Buku {
         return bukuId; 
     }
 
-    // --- GETTER ---
     public int getBukuId() { return bukuId; }
     public int getKategoriId() { return kategoriID; } 
     public String getJudul() { return judul; }
@@ -45,10 +42,9 @@ public class Buku {
     }
     public int getStok() { return stok; }
     public String getNamaKategori() {
-        return namaKategori; // Harus sinkron dengan PropertyValueFactory("namaKategori")
+        return namaKategori;
     }
 
-    // --- SETTER ---
     public void setBukuId(int bukuId) { this.bukuId = bukuId; }
     public void setKategoriId(int kategoriID) { this.kategoriID = kategoriID; }
     public void setKategoriID(int kategoriID) { this.kategoriID = kategoriID; }

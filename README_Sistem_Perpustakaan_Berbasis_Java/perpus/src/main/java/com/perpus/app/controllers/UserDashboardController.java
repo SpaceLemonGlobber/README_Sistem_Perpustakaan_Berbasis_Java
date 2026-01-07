@@ -23,7 +23,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 public class UserDashboardController {
-    // Tabel Search & Borrow
     @FXML private TextField searchField;
     @FXML private TableView<Buku> tableSearch;
     @FXML private TableColumn<Buku, String> colJudul;
@@ -33,14 +32,12 @@ public class UserDashboardController {
     @FXML private TableColumn<Buku, Integer> colTahunTerbit;
 
 
-    // Tabel Active & Return
     @FXML private TableView<Peminjaman> tableActive;
     @FXML private TableColumn<Peminjaman, Integer> colActiveId;
     @FXML private TableColumn<Peminjaman, String> colActiveJudul;
     @FXML private TableColumn<Peminjaman, LocalDate> colActiveJatuhTempo; 
     @FXML private TableColumn<Peminjaman, String> colActiveStatus;     
 
-    // Tabel History
     @FXML private TableView<Peminjaman> tableHistory;
     @FXML private TableColumn<Peminjaman, Integer> colHistId;
     @FXML private TableColumn<Peminjaman, String> colHistStatus;
@@ -71,7 +68,6 @@ public class UserDashboardController {
     }
 
     private void loadAvailableBooks() {
-        // Mengambil data dari DAO dan memasukkannya ke tabel
         tableSearch.setItems(FXCollections.observableArrayList(bukuDAO.getAll()));
     }
 
@@ -112,7 +108,6 @@ public class UserDashboardController {
         Buku selected = tableSearch.getSelectionModel().getSelectedItem();
         if (selected == null) return;
 
-        // Decision: Borrow Book?
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Pinjam buku ini?");
         Optional<ButtonType> result = confirm.showAndWait();
 
@@ -137,10 +132,9 @@ public class UserDashboardController {
             p.setAnggotaId(anggotaId);
             p.setBukuId(selected.getId());
             
-            // LOGIKA: Tanggal Pinjam hari ini, Jatuh Tempo 14 hari (2 minggu)
             LocalDate hariIni = LocalDate.now();
             p.setTanggalPeminjaman(hariIni); 
-            p.setTanggalPengembalian(hariIni.plusWeeks(2)); // Set 2 minggu ke depan
+            p.setTanggalPengembalian(hariIni.plusWeeks(2)); 
             
             p.setStatus("Dipinjam");
             p.setDenda(0.0);
@@ -155,7 +149,6 @@ public class UserDashboardController {
                     return;
                 }
 
-                // 2️⃣ Insert detail peminjaman (jika ada tabel detail)
                 peminjamanDAO.insertDetail(
                     p.getPeminjamanId(),
                     selected.getId(),
@@ -211,10 +204,9 @@ public class UserDashboardController {
 
 
 
-    
+
     @FXML
     private void handleSearch() {
-        // Logika pencarian buku
         String query = searchField.getText().toLowerCase();
         tableSearch.setItems(FXCollections.observableArrayList(
             bukuDAO.getAll().stream()
@@ -224,11 +216,9 @@ public class UserDashboardController {
         ));
     }
 
-    // Tambahkan ini ke dalam UserDashboardController.java
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
-            // Arahkan kembali ke halaman Login
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/perpus/LoginView.fxml"));
             javafx.scene.Parent root = loader.load();
             

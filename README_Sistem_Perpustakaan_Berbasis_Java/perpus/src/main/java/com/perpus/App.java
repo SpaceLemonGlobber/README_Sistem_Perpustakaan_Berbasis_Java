@@ -20,7 +20,7 @@ public class App extends Application {
             
             stage.setTitle("Sistem Manajemen Perpustakaan - Login");
             stage.setScene(scene);
-            stage.setResizable(false); // Opsional: Agar jendela login tidak bisa di-resize
+            stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
             System.err.println("🚨 Gagal memuat file FXML Utama: " + e.getMessage());
@@ -28,19 +28,16 @@ public class App extends Application {
         }
     }
 
-    // Method statis untuk berpindah halaman secara global
     public static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
-        // Penyesuaian path agar mencari file .fxml di folder resources/com/perpus/
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/com/perpus/" + fxml + ".fxml"));
         return fxmlLoader.load();
     }
 
     public static void main(String[] args) {
-        // --- CEK KONEKSI DATABASE SAAT STARTUP ---
         try {
             System.out.println("=== SISTEM PERPUSTAKAAN: MEMULAI KONEKSI ===");
             java.sql.Connection conn = com.perpus.config.Database.getConnection();
@@ -52,7 +49,6 @@ public class App extends Application {
             System.err.println("🚨 Peringatan: Gagal koneksi database di awal. Periksa port 3307.");
         }
 
-        // Menjalankan UI JavaFX
         launch();
     }
 }

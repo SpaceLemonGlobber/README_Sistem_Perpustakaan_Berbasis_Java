@@ -1,14 +1,19 @@
 package com.perpus.app.controllers;
 
+import java.time.LocalDate;
+
 import com.perpus.app.dao.BukuDAO;
 import com.perpus.app.dao.PeminjamanDAO;
 import com.perpus.app.models.Buku;
 import com.perpus.app.models.Peminjaman;
+
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import java.time.LocalDate;
 
 public class PeminjamanController {
 
@@ -23,7 +28,6 @@ public class PeminjamanController {
 
     @FXML
     public void initialize() {
-        // Gunakan getId() karena sudah kita buat aliasnya di model
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNamaAnggota.setCellValueFactory(new PropertyValueFactory<>("namaAnggota"));
         colJudulBuku.setCellValueFactory(new PropertyValueFactory<>("judulBuku"));
@@ -35,7 +39,6 @@ public class PeminjamanController {
     }
 
     private void refreshTable() {
-        // Memastikan memanggil getByStatus atau getAktif sesuai yang ada di DAO
         tablePeminjaman.setItems(FXCollections.observableArrayList(peminjamanDAO.getByStatus("DIPINJAM")));
     }
 
@@ -59,14 +62,11 @@ public class PeminjamanController {
             p.setStatus("DIPINJAM");
             p.setDenda(0.0);
             
-            // Mengambil ID Admin dari sesi login jika tersedia
             if (LoginController.getUserSession() != null) {
                 p.setAdminId(LoginController.getUserSession().getId());
             }
 
-            // Gunakan insert(p) sesuai signature di DAO terbaru
             if (peminjamanDAO.insert(p)) {
-                // Update stok
                 buku.setStok(buku.getStok() - 1);
                 bukuDAO.update(buku);
                 
@@ -88,7 +88,6 @@ public class PeminjamanController {
             return;
         }
 
-        // Gunakan getId() alias dari peminjamanId
         if (peminjamanDAO.updateStatus(selected.getId(), "KEMBALI")) {
             Buku buku = bukuDAO.getById(selected.getBukuId());
             if (buku != null) {
