@@ -23,7 +23,7 @@ public class App extends Application {
             stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
-            System.err.println("🚨 Gagal memuat file FXML Utama: " + e.getMessage());
+            System.err.println("Gagal memuat file FXML Utama: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -42,11 +42,11 @@ public class App extends Application {
             System.out.println("=== SISTEM PERPUSTAKAAN: MEMULAI KONEKSI ===");
             java.sql.Connection conn = com.perpus.config.Database.getConnection();
             if (conn != null) {
-                System.out.println("✅ Database Terkoneksi.");
+                System.out.println("Database Terkoneksi.");
                 conn.close();
             }
         } catch (Exception e) {
-            System.err.println("🚨 Peringatan: Gagal koneksi database di awal. Periksa port 3307.");
+            System.err.println("Peringatan: Gagal koneksi database di awal. Periksa port 3307.");
         }
 
         launch();

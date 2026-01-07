@@ -2,7 +2,7 @@ package com.perpus.app.models;
 
 public class Anggota extends User {
 
-    private int anggotaId; 
+    private int anggotaId;
     private String email;
     private String no_telp;
 
